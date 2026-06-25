@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Pro Team Manager 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="career-topbar">
+        <div class="topbar-title">
+            <span class="career-kicker">CS2 CAREER MODE</span>
+            <h1 id="ui-team-fullname">CS2 PRO TEAM MANAGER</h1>
+        </div>
+        <div class="topbar-mode"><span></span><b>MANAGER HUB</b></div>
+    </header>
+
+    <div id="game-interface">
+        <div class="main-layout">
+            
+            <div class="content-column">
+                <div class="tabs-nav">
+                    <div class="career-brand">
+                        <span class="brand-mark">CS2</span>
+                        <div><b>PRO MANAGER</b><small>CAREER 2026</small></div>
+                    </div>
+                    <span class="nav-section-label">КАР'ЄРА</span>
+                    <div class="tab-btn active" id="tab-hub" onclick="switchTab('hub')" role="button" tabindex="0"><span class="nav-index">01</span><span><b>Головна</b><small>Команда і матчі</small></span></div>
+                    <div class="tab-btn" id="tab-club" onclick="switchTab('club')" role="button" tabindex="0"><span class="nav-index">02</span><span><b>Клуб</b><small>Стан і економіка</small></span></div>
+                    <div class="tab-btn" id="tab-transfers" onclick="switchTab('transfers')" role="button" tabindex="0"><span class="nav-index">03</span><span><b>Трансфери</b><small>Пошук гравців</small></span></div>
+                    <div class="tab-btn" id="tab-rating" onclick="switchTab('rating')" role="button" tabindex="0"><span class="nav-index">04</span><span><b>Світ</b><small>Рейтинг і турніри</small></span></div>
+                    <div class="tab-btn" id="tab-training" onclick="switchTab('training')" role="button" tabindex="0"><span class="nav-index">05</span><span><b>Тренування</b><small>Гравці й карти</small></span></div>
+                    <div class="career-nav-footer"><small>ПОТОЧНИЙ ПРОФІЛЬ</small><b>ГОЛОВНИЙ ТРЕНЕР</b></div>
+                </div>
+
+                <div class="section-header">
+                    <div><span id="section-kicker">КАР'ЄРА</span><h2 id="section-title">ГОЛОВНА</h2></div>
+                    <span id="section-description">Керуйте командою, готуйте склад і виходьте на наступний матч.</span>
+                </div>
+
+                <div id="hub-tab">
+                    <div class="panel next-match-panel">
+                        <h3 style="color: var(--accent-blue); margin-top: 0;">🎮 Наступний поєдинок сезону</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #1b1e2e; padding: 15px; border-radius: 8px;">
+                            <div>Опонент: <b id="ui-enemy-name" class="highlight">-</b></div>
+                            <div>
+                                <select id="ui-tactics" style="display:none" aria-hidden="true">
+                                    <option value="balanced">Баланс</option>
+                                    <option value="aggressive">Високий темп</option>
+                                    <option value="control">Контроль карти</option>
+                                    <option value="defensive">Глибокий захист</option>
+                                    <option value="awp">Гра навколо AWP</option>
+                                    <option value="entry">Швидкі виходи</option>
+                                </select>
+                                <button onclick="startVetoPhase()" style="margin-left: 10px; background: #2563eb; color: white;">Почати матч (BO3)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel squad-panel">
+                        <h3 style="color: var(--accent-blue); margin-top: 0;">👥 Поточний ростер команди</h3>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: -8px;">Роль, поточна форма та базовий рейтинг гравців.</p>
+                        <div id="roster-list-container"></div>
+                    </div>
+
+                    <div class="panel" id="sys-log-panel">
+                        <h3 style="color: var(--text-muted); margin-top: 0; font-size: 14px; text-transform: uppercase;">📰 Стрічка новин організації</h3>
+                        <div id="sys-log" style="max-height: 180px; overflow-y: auto; font-size: 13px; color: #cbd5e1; line-height: 1.6;"></div>
+                    </div>
+                </div>
+
+                <div id="club-tab" style="display: none;">
+                    <div class="club-page-grid">
+                        <div id="club-status-slot">
+                            <div class="panel club-status-panel">
+                                <h3>Стан клубу</h3>
+                                <div class="stat-line"><span>Бюджет:</span><span id="ui-money" class="highlight">$3000</span></div>
+                                <div class="stat-line"><span>Фанати:</span><span id="ui-fans">600 фан.</span></div>
+                                <span id="ui-bootcamp" hidden>1</span>
+                            </div>
+                        </div>
+                        <div id="club-finance-slot"></div>
+                    </div>
+                    <div id="club-player-stats-slot"></div>
+                    <div id="club-actions-slot"></div>
+                </div>
+
+                <div id="transfers-tab" style="display: none;">
+                    <div class="panel transfer-search-panel">
+                        <h3>Пошук гравців</h3>
+                        <div class="transfer-search-grid">
+                            <label>Нік<input id="transfer-search-name" type="search" placeholder="Наприклад: ZywOo"></label>
+                            <label>Команда<select id="transfer-search-team"><option value="">Усі команди</option></select></label>
+                            <label>Роль<select id="transfer-search-role"><option value="">Усі ролі</option><option>AWP</option><option>IGL</option><option>Rifler</option><option>Entry</option><option>Lurker</option></select></label>
+                            <label>Мін. рейтинг<input id="transfer-search-rating" type="number" min="45" max="100" value="70"></label>
+                            <label>Макс. ціна<input id="transfer-search-price" type="number" min="500" step="500" placeholder="Без обмеження"></label>
+                            <button onclick="applyTransferSearch()">Знайти гравців</button>
+                        </div>
+                        <div class="transfer-search-summary" id="transfer-search-summary"></div>
+                        <div id="transfer-search-results" class="transfer-search-results"></div>
+                    </div>
+                </div>
+
+                <div id="rating-tab" style="display: none; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="panel">
+                        <h3 style="color: var(--accent-blue); margin-top: 0;">📊 Світовий рейтинг команд (HLTV)</h3>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); padding-bottom: 5px; border-bottom: 1px solid var(--panel-border);">
+                            <span>КОМАНДА / ТРЕНД</span>
+                            <span>ОЧКИ</span>
+                        </div>
+                        <div id="rating-table-container"></div>
+                    </div>
+                    <div class="panel" id="scouting-panel">
+                        <h3 style="color: var(--accent-blue); margin-top: 0;">Профіль команди</h3>
+                        <div id="scouting-placeholder" style="color: var(--text-muted); text-align: center; margin-top: 40px;">
+                            Натисніть на будь-яку команду в таблиці ліворуч, щоб переглянути її склад та запропонувати трансфер.
+                        </div>
+                        <div id="scouting-content" style="display: none;">
+                            <h4 id="scout-team-name" style="color: var(--accent-gold); margin-top: 0;">-</h4>
+                            <div id="scout-players-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        </div>
+                    </div>
+                    <div id="world-tournament-slot"></div>
+                    <div id="world-calendar-slot"></div>
+                </div>
+
+                <div id="training-tab" style="display: none;">
+                    <div id="map-training-slot"></div>
+                </div>
+
+            </div>
+
+            <div class="club-sidebar legacy-panel-dock" aria-hidden="true"></div>
+
+        </div>
+    </div>
+
+    <div id="veto-screen">
+        <h2 style="color: var(--accent-blue); margin-top: 0;" id="veto-turn">Стадія Pick/Ban карт</h2>
+        <div id="veto-maps-container"></div>
+        <div id="veto-log" style="max-width: 600px; margin: 20px auto; background: #111420; padding: 15px; border-radius: 8px; text-align: left; height: 180px; overflow-y: auto; font-family: monospace; font-size: 13px; color: #94a3b8;"></div>
+    </div>
+
+    <div id="match-screen">
+        <div class="match-box">
+            <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted);">
+                <span id="live-tactic-display">Тактика: -</span>
+                <span>Карта: <b id="live-current-map" style="color: var(--accent-gold);">-</b></span>
+            </div>
+
+            <div class="score-board">
+                <div id="live-player-name" style="color: var(--accent-blue); width: 35%; text-align: right;">TEAM A</div>
+                <div style="background: #25293e; padding: 5px 15px; border-radius: 8px; min-width: 90px;" id="live-score">0 : 0</div>
+                <div id="live-enemy-name" style="color: #f87171; width: 35%; text-align: left;">TEAM B</div>
+            </div>
+
+            <div id="live-series-score" style="font-size: 15px; color: var(--accent-gold); margin-bottom: 15px; font-weight: bold;">Серія: 0 - 0</div>
+            <div id="live-stats-board" class="live-stats-board" aria-live="polite"></div>
+            <div id="post-match-report" class="post-match-report" style="display: none;"></div>
+            <div id="live-ticker"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="major-circuit.js"></script>
+    <script src="career-systems.js"></script>
+    <script src="deep-career.js"></script>
+    <script src="interface-upgrade.js"></script>
+    <script src="codex-polish.js"></script>
+</body>
+</html>
