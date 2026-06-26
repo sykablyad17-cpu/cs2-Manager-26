@@ -29,7 +29,9 @@ const PLAYERS_RATING_DATABASE = {
     "Lucky": 77, "Maka": 75, "Graviti": 75, "Ex3rcice": 73, "misutaaa": 76,
     "alex": 76, "mopoz": 77, "sausol": 75, "dav1g": 73, "MartinezSa": 79,
     "tabseN": 75, "JDC": 77, "faveN": 75, "blameF": 84, "gr1ks": 82,
-    "device": 82, "rain": 76, "Ag1l": 75, "sirah": 77, "poiii": 78
+    "device": 82, "rain": 76, "Ag1l": 75, "sirah": 77, "poiii": 78,
+    "jks": 81, "Vexite": 79, "nettik": 76, "story": 76, "INS": 76,
+    "beastik": 76, "MoDo": 75, "stressarN": 76, "kisserek": 75, "SHOCK": 73
 };
 
 // ПОВНИЙ АКТУАЛЬНИЙ СПИСОК КОМАНД ІЗ РОСТУРУ
@@ -63,7 +65,9 @@ const ALL_TEAMS_DATA = {
     "3DMAX": ["Lucky", "Maka", "Graviti", "Ex3rcice", "misutaaa"],
     "Gentle Mates": ["alex", "mopoz", "sausol", "dav1g", "MartinezSa"],
     "BIG": ["tabseN", "JDC", "faveN", "blameF", "gr1ks"],
-    "100 Thieves": ["device", "rain", "Ag1l", "sirah", "poiii"]
+    "100 Thieves": ["device", "rain", "Ag1l", "sirah", "poiii"],
+    "FlyQuest": ["jks", "Vexite", "nettik", "story", "INS"],
+    "SINNERS": ["beastik", "MoDo", "stressarN", "kisserek", "SHOCK"]
 };
 
 const TEAM_LOGOS = {
@@ -79,7 +83,8 @@ const TEAM_LOGOS = {
     "paiN Gaming": "pain-gaming.webp", "Monte": "monte.webp", "MIBR": "mibr.webp",
     "TYLOO": "tyloo.svg", "Team Liquid": "team-liquid.svg", "M80": "m80.webp",
     "Ninjas in Pyjamas": "nip.webp", "3DMAX": "3dmax.webp",
-    "Gentle Mates": "gentle-mates.webp", "BIG": "big.svg", "100 Thieves": "100-thieves.webp"
+    "Gentle Mates": "gentle-mates.webp", "BIG": "big.svg", "100 Thieves": "100-thieves.webp",
+    "FlyQuest": "flyquest.webp", "SINNERS": "sinners.svg"
 };
 
 function getTeamLogoPath(teamName) {
@@ -101,7 +106,7 @@ const REAL_ROLES_MAP = {
     "Twistzz": "IGL", "sFade8": "IGL", "saffee": "IGL", "Gizmy": "IGL",
     "LNZ": "IGL", "JamYoung": "IGL", "siuhy": "IGL", "s1n": "IGL",
     "Snappi": "IGL", "Ex3rcice": "IGL", "dav1g": "IGL", "tabseN": "IGL",
-    "Ag1l": "IGL",
+    "Ag1l": "IGL", "INS": "IGL", "SHOCK": "IGL",
 
     "ZywOo": "AWP", "w0nderful": "AWP", "sh1ro": "AWP", "m0NESY": "AWP", 
     "molodoy": "AWP", "latto": "AWP", "woxic": "AWP", "torzsi": "AWP",
@@ -109,7 +114,8 @@ const REAL_ROLES_MAP = {
     "zorte": "AWP", "meyern": "AWP", "s1zzi": "AWP", "phzy": "AWP",
     "broky": "AWP", "mo0N": "AWP", "afro": "AWP", "kl1m": "AWP",
     "Jee": "AWP", "ultimate": "AWP", "slaxz-": "AWP", "xKacpersky": "AWP",
-    "Maka": "AWP", "MartinezSa": "AWP", "gr1ks": "AWP", "device": "AWP"
+    "Maka": "AWP", "MartinezSa": "AWP", "gr1ks": "AWP", "device": "AWP",
+    "story": "AWP", "MoDo": "AWP"
 };
 
 function getPlayerBaseSkill(playerName) {
@@ -1014,6 +1020,7 @@ window.onload = function() {
 // === CODEX MANAGER EXPANSION PATCH ===
 const SAVE_KEY_V2 = 'cs2_manager_save_v2';
 const OLD_SAVE_KEY = 'cs2_manager_save';
+const SAVE_SCHEMA_VERSION = 3;
 const STAGES = {
     regular: 'Регулярний сезон',
     quarter: 'Чвертьфінал',
@@ -1091,6 +1098,7 @@ function ensureStateSchema() {
     state.seasonHistory = Array.isArray(state.seasonHistory) ? state.seasonHistory : [];
     state.players = (state.players || []).map((p, index) => createPlayerProfile(p.name, index, p));
     state.finances.salaries = state.players.reduce((sum, p) => sum + getPlayerSalary(p), 0);
+    ensureAllTeamsInRating();
 }
 
 function initializeRatingsForTeam(teamName) {
@@ -1103,6 +1111,28 @@ function initializeRatingsForTeam(teamName) {
             isPlayer: tName === teamName,
             players
         };
+    });
+    syncPlayerTeamInRating();
+    savePositions();
+}
+
+function createWorldTeamEntry(teamName) {
+    const players = ALL_TEAMS_DATA[teamName].map((name, index) => createPlayerProfile(name, index, { form: 0 }));
+    const avgSkill = players.reduce((sum, player) => sum + player.skill, 0) / Math.max(1, players.length);
+    return {
+        name: teamName,
+        points: Math.floor(avgSkill * 9.5) + Math.floor(Math.random() * 50),
+        isPlayer: teamName === state.userTeamFullName,
+        players
+    };
+}
+
+function ensureAllTeamsInRating() {
+    if (!Array.isArray(teamsRating) || !teamsRating.length) return;
+    Object.keys(ALL_TEAMS_DATA).forEach(teamName => {
+        if (!teamsRating.some(team => team.name === teamName)) {
+            teamsRating.push(createWorldTeamEntry(teamName));
+        }
     });
     syncPlayerTeamInRating();
     savePositions();
@@ -1129,15 +1159,49 @@ function restoreRatingsIfNeeded() {
     syncPlayerTeamInRating();
 }
 
+function migrateSaveData(payloadVersion = 0) {
+    state.saveVersion = Number(state.saveVersion || payloadVersion || 0);
+    if (state.saveVersion < 3) {
+        state.uiNotifications = Array.isArray(state.uiNotifications) ? state.uiNotifications.slice(-60) : [];
+        state.calendar = Array.isArray(state.calendar) ? state.calendar.slice(0, 180) : [];
+        if (state.majorCircuit) {
+            const circuit = state.majorCircuit;
+            const activeEvent = circuit.events?.[circuit.activeEventId];
+            if (activeEvent?.completed) circuit.activeEventId = null;
+            if (circuit.eliminationRun) {
+                const runEvent = circuit.events?.[circuit.eliminationRun.eventId];
+                if (!runEvent || runEvent.completed) circuit.eliminationRun = null;
+            }
+            Object.values(circuit.events || {}).forEach(event => {
+                if (!event) return;
+                if (event.stage === 'swiss') {
+                    const rows = new Map((event.standings || []).map(row => [row.name, row]));
+                    const pendingValid = Array.isArray(event.pendingPairings) && event.pendingPairings.every(pair => {
+                        const rowA = rows.get(pair?.[0]);
+                        const rowB = rows.get(pair?.[1]);
+                        if (!rowA || rowA.swissStatus !== 'active') return false;
+                        if (!pair?.[1]) return true;
+                        if (!rowB || rowB.swissStatus !== 'active') return false;
+                        return rowA.wins === rowB.wins && rowA.losses === rowB.losses;
+                    });
+                    if (!pendingValid) event.pendingPairings = null;
+                }
+            });
+        }
+        state.saveVersion = SAVE_SCHEMA_VERSION;
+    }
+}
+
 function autoSave(reason = 'autosave') {
     ensureStateSchema();
+    migrateSaveData(SAVE_SCHEMA_VERSION);
     syncPlayerTeamInRating();
     saveGame(reason);
 }
 
 saveGame = function(reason = 'manual') {
     const payload = {
-        version: 2,
+        version: SAVE_SCHEMA_VERSION,
         savedAt: new Date().toISOString(),
         reason,
         state,
@@ -1159,14 +1223,17 @@ loadGame = function() {
             teamsRating = payload.teamsRating || [];
             teamsPreviousPositions = payload.teamsPreviousPositions || {};
             marketPool = payload.marketPool || [];
+            migrateSaveData(payload.version || 0);
         } else if (rawOld) {
             state = JSON.parse(rawOld);
+            migrateSaveData(1);
         }
     } catch (error) {
         console.warn('Не вдалося завантажити сейв, стартуємо заново.', error);
         state = createDefaultState();
     }
     ensureStateSchema();
+    migrateSaveData(SAVE_SCHEMA_VERSION);
     if (state.userTeamFullName) restoreRatingsIfNeeded();
 };
 
@@ -4924,6 +4991,11 @@ renderCalendarPanel = fiveSectionRenderCalendarPanel;
 
 window.startVetoPhase = function() {
     ensureClubRestructureState();
+    if (state.majorCircuit?.eliminationRun) {
+        logSystem('Турнір ще дограється іншими командами. Спочатку натисніть симуляцію наступного туру.');
+        if (typeof openTournamentWindow === 'function') openTournamentWindow(true);
+        return;
+    }
     if (state.players.length < 5) {
         alert('Для матчу потрібен повний склад із 5 гравців. Підпишіть вільного агента або проведіть трансфер.');
         switchTab('transfers');
@@ -4945,7 +5017,7 @@ window.startVetoPhase = function() {
 // === CODEX FREE AGENTS, SALES AND PLAYER EXCHANGES ===
 const DEFAULT_FREE_AGENTS = [
     ['xfl0ud', 77, 'Rifler'], ['nitr0', 73, 'IGL'], ['Grim', 77, 'AWP'], ['br0', 77, 'Rifler'],
-    ['jks', 81, 'Rifler'], ['JW', 75, 'AWP'], ['JT', 76, 'Lurker'], ['sdy', 77, 'Rifler'],
+    ['JW', 75, 'AWP'], ['JT', 76, 'Lurker'], ['sdy', 77, 'Rifler'],
     ['try', 78, 'AWP'], ['Kvem', 76, 'Rifler'], ['headtr1ck', 74, 'IGL'], ['dexter', 72, 'IGL'],
     ['Liazz', 77, 'Entry'], ['aliStair', 78, 'AWP'], ['sinnopsyy', 75, 'Rifler'], ['fame', 77, 'Entry'],
     ['fEAR', 75, 'IGL'], ['jambo', 79, 'AWP'], ['jackasmo', 78, 'Entry'], ['Br4tkO', 74, 'Lurker'],
@@ -4958,13 +5030,17 @@ const DEFAULT_FREE_AGENTS = [
     ['ScreaM', 70, 'Rifler']
 ];
 
+const RESERVED_NEW_TEAM_PLAYERS = new Set(['jks', 'Vexite', 'nettik', 'story', 'INS', 'beastik', 'MoDo', 'stressarN', 'kisserek', 'SHOCK']);
+
 function ensureFreeAgentState() {
     if (!Array.isArray(state.freeAgents)) {
         state.freeAgents = DEFAULT_FREE_AGENTS.map((row, index) => createPlayerProfile(row[0], index, {
             skill: row[1], role: row[2], form: 0, id: `fa-${index + 1}`
         }));
     }
-    state.freeAgents = state.freeAgents.map((player, index) => createPlayerProfile(player.name, index, player));
+    state.freeAgents = state.freeAgents
+        .filter(player => !RESERVED_NEW_TEAM_PLAYERS.has(player.name))
+        .map((player, index) => createPlayerProfile(player.name, index, player));
 }
 
 function getPlayerSaleValue(player) {

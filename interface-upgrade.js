@@ -57,12 +57,32 @@
         if (!bar) return;
         const morale = Math.round(uiAverage(state.players.map(player => player.career?.morale || 60), 60));
         const event = state.majorCircuit?.events?.[state.majorCircuit.activeEventId];
+        const run = state.majorCircuit?.eliminationRun;
+        if (false && run) {
+            const waitingEvent = state.majorCircuit?.events?.[run.eventId];
+            const stageLabels = { swiss: 'Швейцарський етап', quarterfinal: '1/4 фіналу', semifinal: '1/2 фіналу', final: 'Фінал', complete: 'Завершено' };
+            panel.innerHTML = `<div class="next-match-head"><div><small>${run.waitFor === 'playoff' ? 'ОЧІКУВАННЯ ПЛЕЙ-ОФ' : 'СИМУЛЯЦІЯ ТУРНІРУ'}</small><h3>${escapeLiveText(waitingEvent?.name || 'Major Circuit')}</h3></div><span>${escapeLiveText(waitingEvent ? (stageLabels[waitingEvent.stage] || waitingEvent.stage) : '')}</span></div>
+                <div class="major-elimination-hub standalone"><div><small>${run.waitFor === 'playoff' ? 'ВАША КОМАНДА ВЖЕ В ПЛЕЙ-ОФ' : 'ТУРНІР ПРОДОВЖУЄТЬСЯ БЕЗ ВАШОЇ КОМАНДИ'}</small><b>${escapeLiveText(run.reason || 'Очікування наступного етапу')}</b><span>Зіграйте симуляцію наступного туру, щоб турнір дійшов до вашого наступного матчу або фіналу.</span></div><button type="button" onclick="simulateEliminatedTournamentStep()">Симулювати наступний тур</button><button type="button" class="secondary" onclick="openTournamentWindow(true)">Таблиця</button></div>`;
+            return;
+        }
         bar.innerHTML = `<span><small>БЮДЖЕТ</small><b>$${state.money}</b></span><span><small>РОЗВИТОК</small><b>${state.trainingPoints || 0} TP</b></span><span><small>МОРАЛЬ</small><b>${morale}</b></span><span><small>ВТОМА</small><b>${Math.round(state.trainingFatigue || 0)}</b></span><span><small>ЗІГРАНІСТЬ</small><b>${Math.round(state.chemistry || 0)}%</b></span><span class="resource-event"><small>ТУРНІР</small><b>${escapeLiveText(event?.name || 'Між турнірами')}</b></span>`;
     }
 
     function uiRenderHub() {
         const panel = document.querySelector('.next-match-panel');
         if (!panel) return;
+        const run = state.majorCircuit?.eliminationRun;
+        if (run) {
+            const waitingEvent = state.majorCircuit?.events?.[run.eventId];
+            if (!waitingEvent || waitingEvent.completed) {
+                state.majorCircuit.eliminationRun = null;
+            } else {
+            const stageLabels = { swiss: 'Swiss', quarterfinal: '1/4', semifinal: '1/2', final: 'Final', complete: 'Done' };
+            panel.innerHTML = `<div class="next-match-head"><div><small>${run.waitFor === 'playoff' ? 'ОЧІКУВАННЯ ПЛЕЙ-ОФ' : 'СИМУЛЯЦІЯ ТУРНІРУ'}</small><h3>${escapeLiveText(waitingEvent?.name || 'Major Circuit')}</h3></div><span>${escapeLiveText(waitingEvent ? (stageLabels[waitingEvent.stage] || waitingEvent.stage) : '')}</span></div>
+                <div class="major-elimination-hub standalone"><div><small>${run.waitFor === 'playoff' ? 'ВАША КОМАНДА ВЖЕ В ПЛЕЙ-ОФ' : 'ТУРНІР ПРОДОВЖУЄТЬСЯ БЕЗ ВАШОЇ КОМАНДИ'}</small><b>${escapeLiveText(run.reason || 'Очікування наступного етапу')}</b><span>Симулюйте наступний тур, поки Swiss не сформує плей-оф або турнір не завершиться.</span></div><button type="button" onclick="simulateEliminatedTournamentStep()">Симулювати наступний тур</button><button type="button" class="secondary" onclick="openTournamentWindow(true)">Таблиця</button></div>`;
+            return;
+            }
+        }
         const opponent = getTeamByName(state.currentEnemy?.name);
         const ownRank = uiTeamRank(state.userTeamFullName);
         const enemyRank = uiTeamRank(opponent?.name);

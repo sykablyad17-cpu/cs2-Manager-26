@@ -5,28 +5,28 @@
     const CIRCUIT_VERSION = 2;
     const QUALIFIER_WAVES = [
         [
-            { id: 'iem-usa-26', name: 'IEM USA 26', size: 12, swissRounds: 5, prizePool: 28000, points: { champion: 520, finalist: 360, semifinal: 230, quarterfinal: 140, swiss: 60 } },
-            { id: 'blast-bounty-26', name: 'BLAST Bounty 26', size: 18, swissRounds: 5, prizePool: 20000, points: { champion: 420, finalist: 290, semifinal: 180, quarterfinal: 110, swiss: 45 } }
+            { id: 'iem-usa-26', name: 'IEM USA 26', size: 16, swissRounds: 5, prizePool: 28000, points: { champion: 520, finalist: 360, semifinal: 230, quarterfinal: 140, swiss: 60 } },
+            { id: 'blast-bounty-26', name: 'BLAST Bounty 26', size: 16, swissRounds: 5, prizePool: 20000, points: { champion: 420, finalist: 290, semifinal: 180, quarterfinal: 110, swiss: 45 } }
         ],
         [
-            { id: 'iem-germany-26', name: 'IEM Germany 26', size: 12, swissRounds: 5, prizePool: 32000, points: { champion: 540, finalist: 375, semifinal: 240, quarterfinal: 150, swiss: 65 } },
-            { id: 'blast-open-26', name: 'BLAST Open 26', size: 18, swissRounds: 5, prizePool: 22000, points: { champion: 440, finalist: 300, semifinal: 190, quarterfinal: 115, swiss: 50 } }
+            { id: 'iem-germany-26', name: 'IEM Germany 26', size: 16, swissRounds: 5, prizePool: 32000, points: { champion: 540, finalist: 375, semifinal: 240, quarterfinal: 150, swiss: 65 } },
+            { id: 'blast-open-26', name: 'BLAST Open 26', size: 16, swissRounds: 5, prizePool: 22000, points: { champion: 440, finalist: 300, semifinal: 190, quarterfinal: 115, swiss: 50 } }
         ],
         [
-            { id: 'starladder-26', name: 'StarLadder StarSeries 26', size: 12, swissRounds: 5, prizePool: 35000, points: { champion: 560, finalist: 390, semifinal: 250, quarterfinal: 155, swiss: 70 } },
-            { id: 'xse-pro-league-26', name: 'XSE Pro League 26', size: 18, swissRounds: 5, prizePool: 24000, points: { champion: 460, finalist: 315, semifinal: 200, quarterfinal: 120, swiss: 55 } }
+            { id: 'starladder-26', name: 'StarLadder StarSeries 26', size: 16, swissRounds: 5, prizePool: 35000, points: { champion: 560, finalist: 390, semifinal: 250, quarterfinal: 155, swiss: 70 } },
+            { id: 'xse-pro-league-26', name: 'XSE Pro League 26', size: 16, swissRounds: 5, prizePool: 24000, points: { champion: 460, finalist: 315, semifinal: 200, quarterfinal: 120, swiss: 55 } }
         ],
         [
-            { id: 'iem-dallas-26', name: 'IEM Dallas 26', size: 12, swissRounds: 5, prizePool: 30000, points: { champion: 500, finalist: 340, semifinal: 220, quarterfinal: 135, swiss: 55 } },
-            { id: 'cct-global-finals-26', name: 'CCT Global Finals 26', size: 18, swissRounds: 5, prizePool: 18000, points: { champion: 360, finalist: 245, semifinal: 160, quarterfinal: 95, swiss: 40 } }
+            { id: 'iem-dallas-26', name: 'IEM Dallas 26', size: 16, swissRounds: 5, prizePool: 30000, points: { champion: 500, finalist: 340, semifinal: 220, quarterfinal: 135, swiss: 55 } },
+            { id: 'cct-global-finals-26', name: 'CCT Global Finals 26', size: 16, swissRounds: 5, prizePool: 18000, points: { champion: 360, finalist: 245, semifinal: 160, quarterfinal: 95, swiss: 40 } }
         ],
         [
-            { id: 'iem-rio-26', name: 'IEM Rio 26', size: 12, swissRounds: 5, prizePool: 31000, points: { champion: 515, finalist: 350, semifinal: 225, quarterfinal: 140, swiss: 58 } },
-            { id: 'yalla-compass-26', name: 'YaLLa Compass 26', size: 18, swissRounds: 5, prizePool: 19000, points: { champion: 370, finalist: 255, semifinal: 165, quarterfinal: 100, swiss: 42 } }
+            { id: 'iem-rio-26', name: 'IEM Rio 26', size: 16, swissRounds: 5, prizePool: 31000, points: { champion: 515, finalist: 350, semifinal: 225, quarterfinal: 140, swiss: 58 } },
+            { id: 'yalla-compass-26', name: 'YaLLa Compass 26', size: 16, swissRounds: 5, prizePool: 19000, points: { champion: 370, finalist: 255, semifinal: 165, quarterfinal: 100, swiss: 42 } }
         ],
         [
-            { id: 'pgl-bucharest-26', name: 'PGL Bucharest 26', size: 12, swissRounds: 5, prizePool: 33000, points: { champion: 535, finalist: 370, semifinal: 235, quarterfinal: 145, swiss: 62 } },
-            { id: 'thunderpick-26', name: 'Thunderpick World Cup 26', size: 18, swissRounds: 5, prizePool: 21000, points: { champion: 390, finalist: 270, semifinal: 175, quarterfinal: 105, swiss: 45 } }
+            { id: 'pgl-bucharest-26', name: 'PGL Bucharest 26', size: 16, swissRounds: 5, prizePool: 33000, points: { champion: 535, finalist: 370, semifinal: 235, quarterfinal: 145, swiss: 62 } },
+            { id: 'thunderpick-26', name: 'Thunderpick World Cup 26', size: 16, swissRounds: 5, prizePool: 21000, points: { champion: 390, finalist: 270, semifinal: 175, quarterfinal: 105, swiss: 45 } }
         ]
     ];
     const ESL_CONFIG = { id: 'esl-pro-league-26', name: 'ESL Pro League 26', size: 24, swissRounds: 5, league: true, prizePool: 40000, points: {} };
@@ -39,8 +39,16 @@
             : teamsRating.find(team => team.name === name);
     }
 
+    let mcWorldCacheKey = '';
+    let mcWorldCache = [];
+
     function mcSortedWorld() {
-        return [...teamsRating].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+        const key = teamsRating.map(team => `${team.name}:${Math.round(team.points || 0)}`).join('|');
+        if (key !== mcWorldCacheKey) {
+            mcWorldCacheKey = key;
+            mcWorldCache = [...teamsRating].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+        }
+        return [...mcWorldCache];
     }
 
     function mcStanding(name) {
@@ -121,6 +129,7 @@
             circuit.initialized = true;
             mcInitializePhase();
         }
+        mcRepairCircuitState();
         return circuit;
     }
 
@@ -133,7 +142,12 @@
 
         if (circuit.phase < QUALIFIER_WAVES.length) {
             const configs = QUALIFIER_WAVES[circuit.phase];
-            const groups = [ranked.slice(0, 12), ranked.slice(12, 30)];
+            let seedOffset = 0;
+            const groups = configs.map(config => {
+                const group = ranked.slice(seedOffset, seedOffset + config.size);
+                seedOffset += config.size;
+                return group;
+            });
             configs.forEach((config, index) => {
                 const event = mcCreateEvent(config, groups[index]);
                 circuit.events[event.id] = event;
@@ -201,18 +215,72 @@
     }
 
     function mcPairSwiss(event) {
-        const pool = mcRankEvent(event).filter(row => row.swissStatus !== 'qualified' && row.swissStatus !== 'eliminated');
+        const activeRows = mcRankEvent(event).filter(row => row.swissStatus !== 'qualified' && row.swissStatus !== 'eliminated');
         const pairings = [];
-        while (pool.length > 1) {
-            const first = pool.shift();
-            let opponentIndex = pool.findIndex(candidate =>
-                !first.opponents.includes(candidate.name) && candidate.wins === first.wins && candidate.losses === first.losses
-            );
-            if (opponentIndex < 0) opponentIndex = pool.findIndex(candidate => !first.opponents.includes(candidate.name));
-            if (opponentIndex < 0) opponentIndex = 0;
-            pairings.push([first.name, pool.splice(opponentIndex, 1)[0].name]);
+
+        const canPair = (a, b) => !!a && !!b && !a.opponents.includes(b.name) && !b.opponents.includes(a.name);
+        const solvePairs = rows => {
+            if (!rows.length) return [];
+            const [first, ...rest] = rows;
+            for (let index = 0; index < rest.length; index++) {
+                const candidate = rest[index];
+                if (!canPair(first, candidate)) continue;
+                const remaining = rest.filter((_, itemIndex) => itemIndex !== index);
+                const solved = solvePairs(remaining);
+                if (solved) return [[first.name, candidate.name], ...solved];
+            }
+            return null;
+        };
+
+        const grouped = activeRows.reduce((result, row) => {
+            const key = `${row.wins}-${row.losses}`;
+            result[key] = result[key] || [];
+            result[key].push(row);
+            return result;
+        }, {});
+
+        const groupKeys = Object.keys(grouped).sort((a, b) => {
+            const [aw, al] = a.split('-').map(Number);
+            const [bw, bl] = b.split('-').map(Number);
+            return bw - aw || al - bl;
+        });
+
+        let floater = null;
+        groupKeys.forEach(key => {
+            const group = [...grouped[key]];
+            if (floater) group.unshift(floater);
+            floater = null;
+
+            if (group.length % 2 === 1) floater = group.pop();
+            let solved = solvePairs(group);
+
+            if (!solved && group.length > 2) {
+                floater = group.pop();
+                solved = solvePairs(group);
+            }
+
+            if (solved) pairings.push(...solved);
+            else {
+                while (group.length > 1) {
+                    const first = group.shift();
+                    const opponentIndex = group.findIndex(candidate => canPair(first, candidate));
+                    if (opponentIndex < 0) {
+                        floater = floater || first;
+                        continue;
+                    }
+                    pairings.push([first.name, group.splice(opponentIndex, 1)[0].name]);
+                }
+                if (group.length) floater = floater || group[0];
+            }
+        });
+
+        if (floater) {
+            const existingTeams = new Set(pairings.flat());
+            const opponent = activeRows.find(row => row.name !== floater.name && !existingTeams.has(row.name) && canPair(floater, row));
+            if (opponent) pairings.push([floater.name, opponent.name]);
+            else pairings.push([floater.name, null]);
         }
-        if (pool.length === 1) pairings.push([pool[0].name, null]);
+
         return pairings;
     }
 
@@ -224,11 +292,89 @@
     }
 
     function mcEnsurePairings(event) {
+        if (event.stage === 'swiss' && event.pendingPairings) {
+            const rows = new Map(event.standings.map(row => [row.name, row]));
+            const valid = event.pendingPairings.every(pair => {
+                const rowA = rows.get(pair[0]);
+                const rowB = rows.get(pair[1]);
+                if (!rowA || rowA.swissStatus !== 'active') return false;
+                if (!pair[1]) return true;
+                if (!rowB || rowB.swissStatus !== 'active') return false;
+                if (rowA.wins !== rowB.wins || rowA.losses !== rowB.losses) return false;
+                return !rowA.opponents.includes(rowB.name) && !rowB.opponents.includes(rowA.name);
+            });
+            if (!valid) event.pendingPairings = null;
+        }
         if (event.pendingPairings) return event.pendingPairings;
         event.pendingPairings = event.stage === 'swiss'
             ? mcPairSwiss(event)
             : mcPlayoffPairs(event.playoffTeams);
         return event.pendingPairings;
+    }
+
+    function mcRepairCircuitState() {
+        const circuit = state.majorCircuit;
+        if (!circuit || circuit.__repairing) return;
+        circuit.__repairing = true;
+        try {
+            circuit.currentEventIds = (circuit.currentEventIds || []).filter(id => circuit.events?.[id]);
+            const activeEvent = circuit.events?.[circuit.activeEventId];
+            if (activeEvent?.completed) circuit.activeEventId = null;
+            if (circuit.eliminationRun) {
+                const runEvent = circuit.events?.[circuit.eliminationRun.eventId];
+                if (!runEvent || runEvent.completed) circuit.eliminationRun = null;
+            }
+            Object.values(circuit.events || {}).forEach(event => {
+                if (!event) return;
+                event.standings = Array.isArray(event.standings) ? event.standings : [];
+                event.matches = Array.isArray(event.matches) ? event.matches : [];
+                event.playoffTeams = Array.isArray(event.playoffTeams) ? event.playoffTeams : [];
+                event.placements = event.placements || {};
+                if (event.stage === 'swiss') {
+                    event.standings.forEach(row => {
+                        row.opponents = Array.isArray(row.opponents) ? row.opponents : [];
+                        row.swissStatus = row.swissStatus || 'active';
+                        if (row.swissStatus === 'active' && row.wins >= 3) row.swissStatus = 'qualified';
+                        if (row.swissStatus === 'active' && row.losses >= 3) row.swissStatus = 'eliminated';
+                    });
+                    if (event.pendingPairings) {
+                        const rows = new Map(event.standings.map(row => [row.name, row]));
+                        const valid = event.pendingPairings.every(pair => {
+                            const rowA = rows.get(pair?.[0]);
+                            const rowB = rows.get(pair?.[1]);
+                            if (!rowA || rowA.swissStatus !== 'active') return false;
+                            if (!pair?.[1]) return true;
+                            if (!rowB || rowB.swissStatus !== 'active') return false;
+                            if (rowA.wins !== rowB.wins || rowA.losses !== rowB.losses) return false;
+                            return !rowA.opponents.includes(rowB.name) && !rowB.opponents.includes(rowA.name);
+                        });
+                        if (!valid) event.pendingPairings = null;
+                    }
+                }
+            });
+        } finally {
+            circuit.__repairing = false;
+        }
+    }
+
+    function mcGetPlayerTournamentAction() {
+        const circuit = state.majorCircuit;
+        if (!circuit) return { type: 'none' };
+        if (circuit.eliminationRun) {
+            const event = circuit.events?.[circuit.eliminationRun.eventId];
+            return event && !event.completed
+                ? { type: circuit.eliminationRun.waitFor === 'playoff' ? 'simulate-to-playoff' : 'simulate-event', event }
+                : { type: 'repair' };
+        }
+        const event = circuit.events?.[circuit.activeEventId];
+        if (!event || event.completed) return { type: 'none' };
+        if (event.stage === 'swiss') {
+            const row = event.standings.find(item => item.name === state.userTeamFullName);
+            if (row?.swissStatus === 'qualified') return { type: 'simulate-to-playoff', event };
+            if (row?.swissStatus === 'eliminated') return { type: 'simulate-event', event };
+        }
+        const pair = mcEnsurePairings(event).find(item => item.includes(state.userTeamFullName));
+        return pair ? { type: 'play-match', event, pair } : { type: 'simulate-event', event };
     }
 
     function mcSimulateMatch(teamAName, teamBName, bestOf = 3) {
@@ -490,6 +636,101 @@
         while (!event.completed && guard++ < 12) mcSimulateEventStep(event);
     }
 
+    function mcContinuationLabel(event) {
+        if (!event) return 'Симулювати турнір';
+        if (event.stage === 'swiss') return `Симулювати Swiss тур ${event.swissRound + 1}`;
+        if (event.stage === 'quarterfinal') return 'Симулювати 1/4';
+        if (event.stage === 'semifinal') return 'Симулювати 1/2';
+        if (event.stage === 'final') return 'Симулювати фінал';
+        return 'Симулювати наступний етап';
+    }
+
+    function mcStartEliminationRun(event, reason = 'Виліт із турніру', options = {}) {
+        const circuit = state.majorCircuit;
+        if (!event || !circuit) return;
+        event.pendingPairings = null;
+        circuit.eliminationRun = {
+            eventId: event.id,
+            reason,
+            waitFor: options.waitFor || 'event-complete',
+            startedAtStage: event.stage,
+            startedAtRound: event.swissRound,
+            completed: false
+        };
+        circuit.activeEventId = null;
+        mcLog(`<b>${state.userTeamFullName}</b>: ${reason}. Турнір буде дограватися вручну по етапах через головний екран.`);
+    }
+
+    function mcHandleUserWaitingState(event) {
+        const circuit = state.majorCircuit;
+        if (!event || !circuit || event.completed || circuit.eliminationRun) return false;
+        const playerRow = event.standings.find(row => row.name === state.userTeamFullName);
+        if (event.stage === 'swiss' && playerRow?.swissStatus === 'qualified') {
+            mcStartEliminationRun(event, 'вже вийшла у плей-оф. Дограйте решту Swiss-турів, щоб сформувати сітку 1/4 фіналу', { waitFor: 'playoff' });
+            return true;
+        }
+        if (event.stage === 'swiss' && playerRow?.swissStatus === 'eliminated') {
+            mcStartEliminationRun(event, 'не вийшла зі Swiss/групового етапу');
+            return true;
+        }
+        return false;
+    }
+
+    function mcCompleteEliminationRunIfReady(event) {
+        const circuit = state.majorCircuit;
+        if (!circuit?.eliminationRun || !event) return;
+        const allCurrentCompleted = circuit.currentEventIds.every(id => circuit.events[id]?.completed);
+        if (!event.completed || !allCurrentCompleted) return;
+        circuit.eliminationRun.completed = true;
+        circuit.eliminationRun = null;
+        mcLog(`<b>${event.name}</b> завершено. Повна статистика турніру доступна у вікні симуляції турнірів.`);
+        mcAdvancePhaseAfterEvent(event);
+    }
+
+    function mcResolveStaleEliminationRun() {
+        const circuit = state.majorCircuit;
+        const run = circuit?.eliminationRun;
+        if (!run) return;
+        const event = circuit.events[run.eventId];
+        if (event && !event.completed) return;
+        circuit.eliminationRun = null;
+        if (event && circuit.currentEventIds.every(id => circuit.events[id]?.completed)) {
+            mcAdvancePhaseAfterEvent(event);
+        }
+    }
+
+    window.simulateEliminatedTournamentStep = function () {
+        const circuit = mcEnsureCircuit();
+        const run = circuit?.eliminationRun;
+        const event = run ? circuit.events[run.eventId] : null;
+        if (!event || event.completed) {
+            if (circuit) circuit.eliminationRun = null;
+            mcRenderAll();
+            return;
+        }
+        const beforeStage = event.stage;
+        circuit.currentEventIds.forEach(id => {
+            const item = circuit.events[id];
+            if (item && !item.completed) mcSimulateEventStep(item);
+        });
+        const afterLabel = event.completed ? 'фінал завершено' : (STAGE_LABELS[event.stage] || event.stage);
+        mcLog(`${event.name}: симуляція етапу <b>${STAGE_LABELS[beforeStage] || beforeStage}</b>. Поточний стан: <b>${afterLabel}</b>.`);
+        if (run.waitFor === 'playoff' && event.stage !== 'swiss' && !event.completed && event.playoffTeams.includes(state.userTeamFullName)) {
+            circuit.eliminationRun = null;
+            circuit.activeEventId = event.id;
+            mcLog(`<b>${state.userTeamFullName}</b> дочекалася завершення Swiss і виходить у плей-оф.`);
+            mcPrepareNextOpponent();
+            mcRenderAll();
+            if (typeof updateUI === 'function') updateUI();
+            autoSave('major-qualified-playoff-ready');
+            return;
+        }
+        mcCompleteEliminationRunIfReady(event);
+        mcRenderAll();
+        if (typeof updateUI === 'function') updateUI();
+        autoSave('major-eliminated-step');
+    };
+
     function mcAdvanceOtherEvents(activeEvent) {
         const circuit = state.majorCircuit;
         circuit.currentEventIds.forEach(id => {
@@ -513,7 +754,7 @@
             mcApplySwissStatuses(event);
             if (mcShouldCompleteSwiss(event)) mcCompleteSwiss(event);
             state.matchWeek = (state.matchWeek || 1) + 1;
-            mcPrepareNextOpponent();
+            if (!mcHandleUserWaitingState(event)) mcPrepareNextOpponent();
             mcRenderAll();
             autoSave('major-circuit-bye');
             return;
@@ -549,6 +790,7 @@
             window.onMajorCircuitPlayerMatchFinished(playerWon, event, result);
         }
 
+        const playedStage = event.stage;
         if (event.stage === 'swiss') {
             event.swissRound++;
             mcApplySwissStatuses(event);
@@ -559,13 +801,45 @@
             state.matchWeek = (state.matchWeek || 1) + 1;
         }
 
+        if (event.completed) {
+            const champion = Object.keys(event.placements || {}).find(name => event.placements[name] === 'champion');
+            if (champion === state.userTeamFullName) {
+                mcLog(`<b>${state.userTeamFullName}</b> виграла ${event.name}. Турнір завершено, результат додано до статистики.`);
+            }
+            const allCurrentCompleted = circuit.currentEventIds.every(id => circuit.events[id]?.completed);
+            if (allCurrentCompleted) mcAdvancePhaseAfterEvent(event);
+            else {
+                const nextEvent = circuit.currentEventIds.map(id => circuit.events[id]).find(item => item && !item.completed);
+                if (nextEvent) {
+                    circuit.activeEventId = null;
+                    circuit.eliminationRun = {
+                        eventId: nextEvent.id,
+                        reason: `${event.name} завершено. Дограйте паралельний турнір, щоб перейти до наступної фази.`,
+                        waitFor: 'event-complete',
+                        startedAtStage: nextEvent.stage,
+                        startedAtRound: nextEvent.swissRound,
+                        completed: false
+                    };
+                }
+            }
+            mcRenderAll();
+            autoSave('major-circuit-event-complete');
+            return;
+        }
+
         const playerRow = event.standings.find(row => row.name === state.userTeamFullName);
         const playerSwissActive = event.stage === 'swiss' && (!playerRow || playerRow.swissStatus === 'active');
         const playerStillAlive = !event.completed && (playerSwissActive || event.playoffTeams.includes(state.userTeamFullName));
+        if (mcHandleUserWaitingState(event)) {
+            mcRenderAll();
+            autoSave('major-circuit-waiting');
+            return;
+        }
         if (!playerStillAlive) {
-            mcSimulateEventToEnd(event);
-            circuit.currentEventIds.forEach(id => mcSimulateEventToEnd(circuit.events[id]));
-            mcAdvancePhaseAfterEvent(event);
+            const reason = playerRow?.swissStatus === 'eliminated'
+                ? 'не вийшла зі Swiss/групового етапу'
+                : `вилетіла на етапі ${STAGE_LABELS[playedStage] || playedStage}`;
+            mcStartEliminationRun(event, reason);
         }
         mcPrepareNextOpponent();
         mcRenderAll();
@@ -595,9 +869,10 @@
         const circuit = state.majorCircuit;
         const event = circuit && circuit.events[circuit.activeEventId];
         if (!event || event.completed) return;
-        const pairings = mcEnsurePairings(event);
-        const pair = pairings.find(item => item.includes(state.userTeamFullName));
-        if (!pair) return;
+        if (mcHandleUserWaitingState(event)) return;
+        const action = mcGetPlayerTournamentAction();
+        if (action.type !== 'play-match') return;
+        const pair = action.pair;
         const opponentName = pair[0] === state.userTeamFullName ? pair[1] : pair[0];
         const opponent = mcTeam(opponentName);
         state.currentEnemy = {
@@ -691,6 +966,36 @@
         });
     }
 
+    function mcCompletedEventSnapshot(event) {
+        const champion = Object.keys(event.placements || {}).find(name => event.placements[name] === 'champion');
+        return {
+            name: event.name,
+            tier: event.config?.tier || 'Major Circuit',
+            champion: champion || '',
+            mvp: event.mvp ? { ...event.mvp } : null,
+            matches: event.matches?.length || 0,
+            leaders: mcEventPlayerRanking(event).slice(0, 8).map(player => ({
+                name: player.name,
+                team: player.team,
+                matches: player.matches,
+                kd: player.kd,
+                rating: player.rating,
+                mvps: player.mvps
+            }))
+        };
+    }
+
+    function mcArchivedCompletedEventsHtml(events = []) {
+        if (!events.length) return '';
+        return `<section class="major-completed-events detailed"><h3>Повна статистика турнірів сезону</h3>${events.map(event => `
+            <article class="major-completed-event-detail">
+                <header><span><small>${escapeLiveText(event.tier)}</small><b>${escapeLiveText(event.name)}</b></span><strong>${event.champion ? `Чемпіон: ${escapeLiveText(event.champion)}` : 'Завершено'}</strong></header>
+                <div class="major-completed-stats"><span>Матчів <b>${event.matches}</b></span><span>MVP <b>${event.mvp ? `${escapeLiveText(event.mvp.name)} · ${event.mvp.rating}` : '-'}</b></span><span>Командний підсумок <b>${event.champion || '-'}</b></span></div>
+                <div class="major-completed-player-table"><div><span>#</span><span>Гравець</span><span>Матчі</span><span>K/D</span><span>Rating</span><span>MVP</span></div>${event.leaders.map((player, index) => `<div><span>${index + 1}</span><b>${escapeLiveText(player.name)}<small>${escapeLiveText(player.team)}</small></b><span>${player.matches}</span><span>${player.kd}</span><strong>${player.rating}</strong><span>${player.mvps}</span></div>`).join('')}</div>
+            </article>
+        `).join('')}</section>`;
+    }
+
     function mcFinishSeason() {
         const circuit = state.majorCircuit;
         if (typeof window.onMajorCircuitSeasonEnding === 'function') window.onMajorCircuitSeasonEnding(circuit);
@@ -703,6 +1008,7 @@
             majorPoints: circuit.majorPoints[state.userTeamFullName] || 0,
             majorPointsPlace: mcMajorPointRanking().findIndex(row => row.name === state.userTeamFullName) + 1,
             events: [...(circuit.teamEvents[state.userTeamFullName] || [])],
+            completedEvents: Object.values(circuit.events).filter(event => event.completed).map(mcCompletedEventSnapshot),
             players: mcPlayerSnapshot(circuit),
             tournamentMvps: circuit.tournamentMvps.filter(item => item.team === state.userTeamFullName),
             allMvps: [...circuit.tournamentMvps],
@@ -735,6 +1041,30 @@
             <button class="open-tournament-btn" onclick="openTournamentWindow(true)">Відкрити сезонний турнір</button>`;
     }
 
+    function mcRenderEliminationHub() {
+        const panel = document.querySelector('.next-match-panel');
+        const circuit = state.majorCircuit;
+        if (!panel || !circuit) return;
+        panel.querySelector('.major-elimination-hub')?.remove();
+        const run = circuit.eliminationRun;
+        if (!run) return;
+        const event = circuit.events[run.eventId];
+        if (!event || event.completed) return;
+        const champion = Object.keys(event.placements || {}).find(name => event.placements[name] === 'champion');
+        const waitingForPlayoff = run.waitFor === 'playoff';
+        panel.insertAdjacentHTML('beforeend', `
+            <div class="major-elimination-hub">
+                <div>
+                    <small>${waitingForPlayoff ? 'ВАША КОМАНДА ВЖЕ В ПЛЕЙ-ОФ' : 'ТУРНІР ПРОДОВЖУЄТЬСЯ БЕЗ ВАШОЇ КОМАНДИ'}</small>
+                    <b>${escapeLiveText(event.name)} · ${escapeLiveText(STAGE_LABELS[event.stage] || event.stage)}</b>
+                    <span>${escapeLiveText(run.reason || 'Виліт із турніру')}${champion ? ` · Чемпіон: ${escapeLiveText(champion)}` : ''}</span>
+                </div>
+                <button type="button" onclick="simulateEliminatedTournamentStep()">${escapeLiveText(mcContinuationLabel(event))}</button>
+                <button type="button" class="secondary" onclick="openTournamentWindow(true)">Таблиця</button>
+            </div>
+        `);
+    }
+
     function mcEventTable(event) {
         const ranked = mcRankEvent(event);
         const qualificationCutoff = event.config.league ? 16 : 8;
@@ -751,12 +1081,36 @@
         return `<div class="major-bracket"><b>${escapeLiveText(STAGE_LABELS[event.stage] || event.stage)}</b>${pairs.map(pair => `<span><em>${teamLogoHtml(pair[0])}${escapeLiveText(pair[0])}</em><i>vs</i><em>${teamLogoHtml(pair[1])}${escapeLiveText(pair[1])}</em></span>`).join('')}</div>`;
     }
 
+    function mcCompletedEventSummaryHtml(event) {
+        const champion = Object.keys(event.placements || {}).find(name => event.placements[name] === 'champion');
+        const finalMatch = [...(event.matches || [])].reverse().find(match => match.stage === 'final') || [...(event.matches || [])].reverse()[0];
+        const leaders = mcEventPlayerRanking(event).slice(0, 8);
+        const userResult = state.majorCircuit.teamEvents[state.userTeamFullName]?.find(item => item.event === event.name);
+        return `<article class="major-completed-event-detail">
+            <header>
+                <span><small>${escapeLiveText(event.config?.tier || 'Major Circuit')}</small><b>${escapeLiveText(event.name)}</b></span>
+                <strong>${champion ? `Чемпіон: ${teamLogoHtml(champion)}${escapeLiveText(champion)}` : event.config.league ? 'Ліга завершена' : 'Турнір завершено'}</strong>
+            </header>
+            <div class="major-completed-stats">
+                <span>Матчів <b>${event.matches?.length || 0}</b></span>
+                <span>MVP <b>${event.mvp ? `${escapeLiveText(event.mvp.name)} · ${event.mvp.rating}` : '-'}</b></span>
+                <span>Ваш результат <b>${userResult ? `${mcPlacementLabel(userResult.placement)} · +${userResult.points} MP` : 'Не брали участь'}</b></span>
+            </div>
+            ${finalMatch ? `<div class="major-completed-final"><small>${escapeLiveText(STAGE_LABELS[finalMatch.stage] || finalMatch.stage || 'Останній матч')}</small><b>${teamLogoHtml(finalMatch.teamA)}${escapeLiveText(finalMatch.teamA)} <em>${finalMatch.scoreA}-${finalMatch.scoreB}</em> ${teamLogoHtml(finalMatch.teamB)}${escapeLiveText(finalMatch.teamB)}</b></div>` : ''}
+            <div class="major-completed-player-table">
+                <div><span>#</span><span>Гравець</span><span>Матчі</span><span>K/D</span><span>Rating</span><span>MVP</span></div>
+                ${leaders.map((player, index) => `<div><span>${index + 1}</span><b>${escapeLiveText(player.name)}<small>${escapeLiveText(player.team)}</small></b><span>${player.matches}</span><span>${player.kd}</span><strong>${player.rating}</strong><span>${player.mvps}</span></div>`).join('')}
+            </div>
+        </article>`;
+    }
+
     function mcSeasonArchiveHtml() {
         const latest = state.majorSeasonHistory?.[0];
         if (!latest) return '<div class="major-empty-history">Архів сезону зʼявиться після завершення Cologne Major.</div>';
         return `<section class="major-season-archive"><div class="major-event-title"><div><h3>Архів сезону ${latest.season}</h3><small>Major Points: ${latest.majorPoints} · місце #${latest.majorPointsPlace}</small></div></div>
             <div class="major-archive-events">${latest.events.map(item => `<span>${escapeLiveText(item.event)}<b>${mcPlacementLabel(item.placement)} · +${item.points} MP · $${item.prize || 0}</b></span>`).join('')}</div>
             <div class="major-player-table"><div><span>Гравець</span><span>Матчі</span><span>K/D</span><span>Rating</span><span>MVP</span></div>${latest.players.map(player => `<div><b>${escapeLiveText(player.name)}</b><span>${player.matches}</span><span>${player.kd}</span><span>${player.rating}</span><span>${player.matchMvps} / T${player.tournamentMvps}</span></div>`).join('')}</div>
+            ${mcArchivedCompletedEventsHtml(latest.completedEvents)}
             ${typeof window.renderCareerAwardsHtml === 'function' ? window.renderCareerAwardsHtml(latest.awards) : ''}
         </section>`;
     }
@@ -776,10 +1130,7 @@
         body.innerHTML = `<div class="major-circuit-window">
             <div class="major-timeline">${timelineNames.map((name, index) => `<span class="${index < circuit.phase ? 'done' : index === circuit.phase ? 'current' : ''}"><i>${index + 1}</i>${name}</span>`).join('')}</div>
             ${circuit.currentEventIds.map(id => mcEventTable(circuit.events[id])).join('')}
-            ${completedEvents.length ? `<section class="major-completed-events"><h3>Завершені турніри сезону</h3>${completedEvents.map(event => {
-                const champion = Object.keys(event.placements).find(name => event.placements[name] === 'champion');
-                return `<span><b>${escapeLiveText(event.name)}</b><small>${champion ? `Чемпіон: ${escapeLiveText(champion)}` : event.config.league ? 'Топ-16 визначено' : 'Завершено'}</small><strong>${event.mvp ? `MVP ${escapeLiveText(event.mvp.name)} · ${event.mvp.rating}` : ''}</strong></span>`;
-            }).join('')}</section>` : ''}
+            ${completedEvents.length ? `<section class="major-completed-events detailed"><h3>Повна статистика завершених турнірів</h3>${completedEvents.map(event => mcCompletedEventSummaryHtml(event)).join('')}</section>` : ''}
             <div class="major-mvp-list"><h3>MVP турнірів сезону</h3>${circuit.tournamentMvps.map(item => `<span><b>${escapeLiveText(item.event)}</b>${escapeLiveText(item.name)} · ${escapeLiveText(item.team)} · ${item.rating}</span>`).join('') || '<small>MVP визначиться після завершення першого турніру.</small>'}</div>
             ${mcSeasonArchiveHtml()}
         </div>`;
@@ -803,7 +1154,11 @@
 
     function mcRenderAll() {
         if (!state.majorCircuit) return;
+        mcResolveStaleEliminationRun();
+        const activeEvent = state.majorCircuit.events[state.majorCircuit.activeEventId];
+        if (activeEvent) mcHandleUserWaitingState(activeEvent);
         mcRenderTournamentPanel();
+        mcRenderEliminationHub();
         mcRenderArchivePanel();
         const event = state.majorCircuit.events[state.majorCircuit.activeEventId];
         const stage = document.getElementById('ui-tournament-stage');
@@ -821,12 +1176,51 @@
     const rollNextEnemyBeforeMajorCircuit = rollNextEnemy;
     rollNextEnemy = function () {
         const circuit = mcEnsureCircuit();
+        if (circuit?.eliminationRun) return;
         if (circuit?.activeEventId) return mcPrepareNextOpponent();
         return rollNextEnemyBeforeMajorCircuit();
     };
 
     simulateTournamentRoundForAllTiers = function (opponentName, isPlayerWin) {
         mcRecordPlayerMatch(opponentName, isPlayerWin);
+    };
+
+    window.runMajorCircuitSwissSelfTest = function (iterations = 200) {
+        const errors = [];
+        const config = { id: 'self-test', name: 'Swiss Self Test', size: 16, swissRounds: 5, prizePool: 0, points: {} };
+        const calendarBefore = Array.isArray(state.calendar) ? [...state.calendar] : state.calendar;
+        const weekBefore = state.matchWeek;
+        try {
+            for (let run = 0; run < iterations; run++) {
+                const names = Array.from({ length: 16 }, (_, index) => `Test Team ${index + 1}`);
+                const event = mcCreateEvent(config, names);
+                let guard = 0;
+                while (event.stage === 'swiss' && !event.completed && guard++ < 8) {
+                    event.pendingPairings = mcPairSwiss(event);
+                    event.pendingPairings.forEach(pair => {
+                        const rowA = event.standings.find(row => row.name === pair[0]);
+                        const rowB = event.standings.find(row => row.name === pair[1]);
+                        if (!rowA || rowA.swissStatus !== 'active') errors.push(`Run ${run}: inactive team paired`);
+                        if (rowA && rowB && (rowA.wins !== rowB.wins || rowA.losses !== rowB.losses)) errors.push(`Run ${run}: score mismatch ${rowA.wins}-${rowA.losses} vs ${rowB.wins}-${rowB.losses}`);
+                        if (rowA && rowB && rowA.opponents.includes(rowB.name)) errors.push(`Run ${run}: repeated opponent`);
+                    });
+                    mcSimulateEventStep(event);
+                }
+                const qualified = event.standings.filter(row => row.swissStatus === 'qualified');
+                const active = event.standings.filter(row => row.swissStatus === 'active');
+                event.standings.forEach(row => {
+                    if (row.wins >= 3 && row.swissStatus !== 'qualified') errors.push(`Run ${run}: ${row.name} has 3 wins but is not qualified`);
+                    if (row.losses >= 3 && row.swissStatus !== 'eliminated') errors.push(`Run ${run}: ${row.name} has 3 losses but is not eliminated`);
+                    if (new Set(row.opponents).size !== row.opponents.length) errors.push(`Run ${run}: duplicate opponent history`);
+                });
+                if (qualified.length !== 8) errors.push(`Run ${run}: expected 8 playoff teams, got ${qualified.length}`);
+                if (active.length) errors.push(`Run ${run}: active teams left after Swiss`);
+            }
+        } finally {
+            state.calendar = calendarBefore;
+            state.matchWeek = weekBefore;
+        }
+        return { ok: errors.length === 0, iterations, errors: errors.slice(0, 20), errorCount: errors.length };
     };
 
     const finishBo3BeforeMajorCircuit = finishBo3Series;

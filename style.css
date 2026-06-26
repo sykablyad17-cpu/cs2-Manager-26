@@ -996,6 +996,99 @@ body.game-ready {
 .major-completed-events span { display: grid; gap: 3px; padding: 9px; border-radius: 6px; background: #152230; }
 .major-completed-events small { color: #91a6b8; }
 .major-completed-events strong { color: #f6c453; font-size: 11px; }
+.major-elimination-hub {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 11px;
+    border: 1px solid rgba(246, 196, 83, .45);
+    border-radius: 7px;
+    background: linear-gradient(90deg, rgba(246, 196, 83, .12), rgba(16, 27, 39, .94));
+}
+.major-elimination-hub div { display: grid; gap: 3px; }
+.major-elimination-hub small { color: #f6c453; font-size: 9px; font-weight: 900; }
+.major-elimination-hub b { color: #f3f7fb; font-size: 15px; }
+.major-elimination-hub span { color: #9db0bf; font-size: 11px; }
+.major-elimination-hub button { background: #f6c453 !important; color: #11160f !important; }
+.major-elimination-hub button.secondary { background: #172536 !important; color: #dfe9ef !important; }
+.major-completed-events.detailed {
+    grid-template-columns: 1fr;
+}
+.major-completed-event-detail {
+    display: grid;
+    gap: 9px;
+    padding: 11px;
+    border: 1px solid #2e4155;
+    border-radius: 8px;
+    background: #0f1a25;
+}
+.major-completed-event-detail header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.major-completed-event-detail header span { display: grid; gap: 3px; }
+.major-completed-event-detail header small { color: #8ea4b8; font-size: 9px; font-weight: 900; }
+.major-completed-event-detail header b { color: #eef5f8; font-size: 16px; }
+.major-completed-event-detail header strong {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #f6c453;
+    font-size: 12px;
+}
+.major-completed-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+}
+.major-completed-stats span,
+.major-completed-final {
+    display: grid;
+    gap: 3px;
+    padding: 8px;
+    border: 1px solid #26394a;
+    border-radius: 6px;
+    background: #121f2c;
+    color: #8fa5b8;
+    font-size: 11px;
+}
+.major-completed-stats b,
+.major-completed-final b { color: #eef5f8; }
+.major-completed-final b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+.major-completed-final em { color: #f6c453; font-style: normal; font-size: 16px; }
+.major-completed-player-table {
+    overflow-x: auto;
+    border: 1px solid #26394a;
+    border-radius: 6px;
+}
+.major-completed-player-table > div {
+    display: grid;
+    grid-template-columns: 32px minmax(160px, 1fr) 58px 58px 70px 50px;
+    gap: 6px;
+    align-items: center;
+    min-width: 620px;
+    padding: 7px 8px;
+    border-bottom: 1px solid #223142;
+    font-size: 11px;
+}
+.major-completed-player-table > div:first-child {
+    color: #7890a4;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.major-completed-player-table b { display: grid; gap: 2px; color: #eef5f8; }
+.major-completed-player-table small { color: #8498aa; font-size: 9px; }
+.major-completed-player-table strong { color: #46d7b5; }
 .major-archive-events { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin: 10px 0; }
 .major-archive-events span { display: grid; gap: 3px; padding: 8px; border-radius: 5px; background: #152230; color: #8fa5b9; font-size: 11px; }
 .major-archive-events b { color: #e8f1f7; }
@@ -1009,6 +1102,12 @@ body.game-ready {
     .major-points-grid { grid-template-columns: 1fr; }
     .major-panel-stats { grid-template-columns: 1fr; }
     .major-bracket, .major-archive-events, .major-completed-events { grid-template-columns: 1fr; }
+    .major-elimination-hub,
+    .major-completed-stats {
+        grid-template-columns: 1fr;
+    }
+    .major-completed-event-detail header { flex-direction: column; }
+    .major-elimination-hub { align-items: stretch; }
     .major-table-head, .major-table-row { grid-template-columns: 25px minmax(105px, 1fr) 42px 38px 45px; padding: 6px 3px; }
     .major-player-table { overflow-x: auto; }
     .major-player-table > div { min-width: 480px; }
