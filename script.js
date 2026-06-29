@@ -1083,7 +1083,12 @@ function createPlayerProfile(name, index, extra = {}) {
             deaths: extra.stats?.deaths || 0,
             mvps: extra.stats?.mvps || 0,
             matches: extra.stats?.matches || 0,
-            rating: extra.stats?.rating || 1.0
+            rating: extra.stats?.rating || 1.0,
+            swingImpact: extra.stats?.swingImpact || 0,
+            ecoAdjustedKills: extra.stats?.ecoAdjustedKills || 0,
+            multiKills: extra.stats?.multiKills || 0,
+            clutches: extra.stats?.clutches || 0,
+            entryKills: extra.stats?.entryKills || 0
         }
     };
 }
@@ -2259,13 +2264,35 @@ function addMapStatsToSeries(mapStats) {
     seriesState.seriesPlayerStats = seriesState.seriesPlayerStats || {};
     mapStats.forEach(row => {
         if (!seriesState.seriesPlayerStats[row.name]) {
-            seriesState.seriesPlayerStats[row.name] = { name: row.name, kills: 0, deaths: 0, ratingSum: 0, maps: 0 };
+            seriesState.seriesPlayerStats[row.name] = {
+                name: row.name,
+                kills: 0,
+                deaths: 0,
+                ratingSum: 0,
+                maps: 0,
+                damage: 0,
+                kastRounds: 0,
+                rounds: 0,
+                swingImpact: 0,
+                ecoAdjustedKills: 0,
+                multiKills: 0,
+                clutches: 0,
+                entryKills: 0
+            };
         }
         const target = seriesState.seriesPlayerStats[row.name];
         target.kills += row.kills;
         target.deaths += row.deaths;
         target.ratingSum += Number(row.rating || 1);
         target.maps += 1;
+        target.damage += row.damage || 0;
+        target.kastRounds += row.kastRounds || 0;
+        target.rounds += row.rounds || 0;
+        target.swingImpact += row.swingImpact || 0;
+        target.ecoAdjustedKills += row.ecoAdjustedKills || row.kills || 0;
+        target.multiKills += row.multiKills || 0;
+        target.clutches += row.clutches || 0;
+        target.entryKills += row.entryKills || 0;
     });
 }
 
@@ -2277,13 +2304,45 @@ function applySeriesStatsAndMVP(isPlayerWin) {
         const player = state.players.find(p => p.name === row.name);
         if (!player) return;
         const kd = row.kills / Math.max(1, row.deaths);
-        const seriesRating = Math.max(0.55, Math.min(1.9, (row.ratingSum / Math.max(1, row.maps)) + (isPlayerWin ? 0.04 : -0.03) + kd * 0.08));
+        const rounds = Math.max(1, row.rounds || row.maps * 20);
+        const kast = (row.kastRounds || 0) / rounds;
+        const ecoKpr = (row.ecoAdjustedKills || row.kills || 0) / rounds;
+        const swingPerRound = (row.swingImpact || 0) / rounds;
+        const seriesRating = Math.max(0.55, Math.min(2.2,
+            (row.ratingSum / Math.max(1, row.maps)) * 0.72
+            + kd * 0.06
+            + kast * 0.12
+            + ecoKpr * 0.22
+            + swingPerRound * 0.025
+            + (isPlayerWin ? 0.04 : -0.03)
+        ));
         player.stats.kills += row.kills;
         player.stats.deaths += row.deaths;
         player.stats.matches += 1;
         player.stats.rating = Number((((player.stats.rating || 1) * Math.max(0, player.stats.matches - 1) + seriesRating) / player.stats.matches).toFixed(2));
-        if (typeof window.addPlayerLevelProgress === 'function') window.addPlayerLevelProgress(player, isPlayerWin ? 5 : -5);
-        const mvpScore = seriesRating * 100 + row.kills - row.deaths * 0.25;
+        player.stats.swingImpact = Number(((player.stats.swingImpact || 0) + (row.swingImpact || 0)).toFixed(2));
+        player.stats.ecoAdjustedKills = Number(((player.stats.ecoAdjustedKills || 0) + (row.ecoAdjustedKills || 0)).toFixed(2));
+        player.stats.multiKills = (player.stats.multiKills || 0) + (row.multiKills || 0);
+        player.stats.clutches = (player.stats.clutches || 0) + (row.clutches || 0);
+        player.stats.entryKills = (player.stats.entryKills || 0) + (row.entryKills || 0);
+        if (typeof window.addPlayerLevelProgress === 'function') {
+            const impactXp = Math.round(
+                (isPlayerWin ? 2 : -3)
+                + (seriesRating - 1) * 12
+                + Math.max(-3, Math.min(5, swingPerRound * 0.75))
+                + (row.clutches || 0) * 2
+                + (row.entryKills || 0) * 0.45
+            );
+            window.addPlayerLevelProgress(player, Math.max(-8, Math.min(12, impactXp)));
+        }
+        const mvpScore = seriesRating * 92
+            + (row.swingImpact || 0) * 0.72
+            + (row.multiKills || 0) * 3.2
+            + (row.clutches || 0) * 6
+            + (row.entryKills || 0) * 2.1
+            + (isPlayerWin ? 8 : -3)
+            + row.kills * 0.65
+            - row.deaths * 0.42;
         if (!best || mvpScore > best.mvpScore) best = { player, mvpScore, seriesRating };
     });
 
@@ -4140,16 +4199,57 @@ function createLivePlayerStats(players) {
         kastRounds: 0,
         rounds: 0,
         rating: 1,
+        rating3: 1,
         swing: 0,
+        swingImpact: 0,
+        ecoAdjustedKills: 0,
+        multiKills: 0,
+        clutches: 0,
+        entryKills: 0,
         roundKills: 0,
         diedThisRound: false,
         assistedThisRound: false
     }));
 }
 
+function clampLiveNumber(value, min, max) {
+    return Math.max(min, Math.min(max, Number(value) || 0));
+}
+
+function getRoundEconomyProfile(money, roundNumber) {
+    if (roundNumber === 1 || roundNumber === 13) return { label: 'pistol', value: 0.42 };
+    if (money < 1800) return { label: 'eco', value: 0.35 };
+    if (money < 3600) return { label: 'force', value: 0.62 };
+    if (money < 5200) return { label: 'rifle', value: 0.86 };
+    return { label: 'full', value: 1 };
+}
+
+function getEcoKillMultiplier(killerEco, victimEco) {
+    const killerValue = killerEco?.value ?? 0.8;
+    const victimValue = victimEco?.value ?? 0.8;
+    const difficulty = victimValue - killerValue;
+    return clampLiveNumber(1 + difficulty * 0.9, 0.45, 1.55);
+}
+
+function estimateLiveRoundWinProbability(teamAlive, enemyAlive, teamEco, enemyEco, bombPlanted = false) {
+    const aliveEdge = (teamAlive - enemyAlive) * 0.105;
+    const ecoEdge = ((teamEco?.value ?? 0.75) - (enemyEco?.value ?? 0.75)) * 0.22;
+    const plantEdge = bombPlanted ? 0.1 : 0;
+    return clampLiveNumber(0.5 + aliveEdge + ecoEdge + plantEdge, 0.03, 0.97);
+}
+
+function finalizeRoundImpact(stats, wonRound) {
+    stats.forEach(stat => {
+        if (stat.roundKills >= 2) stat.multiKills += stat.roundKills - 1;
+        const survivedAlone = !stat.diedThisRound && stats.filter(row => !row.diedThisRound).length === 1;
+        if (wonRound && survivedAlone && stat.roundKills > 0) stat.clutches += 1;
+    });
+}
+
 function recalculateLiveStat(stat) {
     if (!stat.rounds) {
         stat.rating = 1;
+        stat.rating3 = 1;
         stat.swing = 0;
         return;
     }
@@ -4157,10 +4257,25 @@ function recalculateLiveStat(stat) {
     const dpr = stat.deaths / stat.rounds;
     const adr = stat.damage / stat.rounds;
     const kast = stat.kastRounds / stat.rounds;
-    const rawRating = 0.35 + kpr * 0.8 - dpr * 0.38 + adr * 0.0032 + kast * 0.24;
+    const ecoKpr = (stat.ecoAdjustedKills || stat.kills) / stat.rounds;
+    const multiRate = (stat.multiKills || 0) / stat.rounds;
+    const clutchRate = (stat.clutches || 0) / stat.rounds;
+    const entryRate = (stat.entryKills || 0) / stat.rounds;
+    const roundSwing = (stat.swingImpact || 0) / stat.rounds;
+    const rawRating = 0.28
+        + ecoKpr * 0.72
+        + kpr * 0.18
+        - dpr * 0.34
+        + adr * 0.0027
+        + kast * 0.2
+        + multiRate * 0.18
+        + clutchRate * 0.22
+        + entryRate * 0.09
+        + roundSwing * 0.018;
     const sampleWeight = 0.45 + Math.min(1, stat.rounds / 6) * 0.55;
-    stat.rating = Math.max(0.35, Math.min(2, 1 + (rawRating - 1) * sampleWeight));
-    stat.swing = Math.max(-4.5, Math.min(4.5, (stat.rating - 1) * 3.8 + (stat.form || 0) * 0.03));
+    stat.rating = Math.max(0.35, Math.min(2.2, 1 + (rawRating - 1) * sampleWeight));
+    stat.rating3 = stat.rating;
+    stat.swing = Math.max(-8.5, Math.min(8.5, roundSwing + (stat.rating - 1) * 1.35 + (stat.form || 0) * 0.025));
 }
 
 function pickWeightedLivePlayer(stats) {
@@ -4197,14 +4312,24 @@ function pickWeightedLiveVictim(stats) {
     return stats[stats.length - 1];
 }
 
-function grantLiveKills(killers, victims, count) {
+function grantLiveKills(killers, victims, count, context = {}) {
     const victimPool = [...victims];
+    let firstKillAvailable = !context.firstKillDone;
     for (let frag = 0; frag < Math.min(count, victims.length); frag++) {
+        if (!victimPool.length) break;
         const victim = pickWeightedLiveVictim(victimPool);
         victimPool.splice(victimPool.indexOf(victim), 1);
         const killer = pickWeightedLivePlayer(killers);
+        const killerAliveBefore = killers.filter(stat => !stat.diedThisRound).length;
+        const victimAliveBefore = victims.filter(stat => !stat.diedThisRound).length;
+        const beforeWinChance = estimateLiveRoundWinProbability(killerAliveBefore, victimAliveBefore, context.killerEco, context.victimEco, context.bombPlanted);
         killer.kills += 1;
         killer.roundKills += 1;
+        if (firstKillAvailable) {
+            killer.entryKills += 1;
+            firstKillAvailable = false;
+            context.firstKillDone = true;
+        }
         const killDamage = 72 + Math.floor(Math.random() * 29);
         killer.damage += killDamage;
         const assistPool = killers.filter(stat => stat !== killer);
@@ -4215,6 +4340,12 @@ function grantLiveKills(killers, victims, count) {
         } else killer.damage += 100 - killDamage;
         victim.deaths += 1;
         victim.diedThisRound = true;
+        const afterWinChance = estimateLiveRoundWinProbability(killerAliveBefore, Math.max(0, victimAliveBefore - 1), context.killerEco, context.victimEco, context.bombPlanted);
+        const ecoMultiplier = getEcoKillMultiplier(context.killerEco, context.victimEco);
+        const swingGain = Math.max(0.35, (afterWinChance - beforeWinChance) * 100) * ecoMultiplier;
+        killer.ecoAdjustedKills += ecoMultiplier;
+        killer.swingImpact += swingGain;
+        victim.swingImpact -= Math.max(0.15, swingGain * 0.35);
     }
 }
 
@@ -4226,7 +4357,7 @@ function grantLiveChipDamage(attackers, targets) {
     });
 }
 
-function simulateLiveRoundStats(playerStats, enemyStats, playerWonRound) {
+function simulateLiveRoundStats(playerStats, enemyStats, playerWonRound, context = {}) {
     [...playerStats, ...enemyStats].forEach(stat => {
         stat.roundKills = 0;
         stat.diedThisRound = false;
@@ -4239,10 +4370,23 @@ function simulateLiveRoundStats(playerStats, enemyStats, playerWonRound) {
     const loserRoll = Math.random();
     const winnerKills = winnerRoll < 0.4 ? 5 : winnerRoll < 0.85 ? 4 : 3;
     const loserKills = loserRoll < 0.18 ? 0 : loserRoll < 0.48 ? 1 : loserRoll < 0.76 ? 2 : loserRoll < 0.94 ? 3 : 4;
-    grantLiveKills(winners, losers, winnerKills);
-    grantLiveKills(losers, winners, loserKills);
+    const firstKillContext = { firstKillDone: false };
+    const playerEco = context.playerEco || getRoundEconomyProfile(4800, context.roundNumber || 1);
+    const enemyEco = context.enemyEco || getRoundEconomyProfile(4800, context.roundNumber || 1);
+    grantLiveKills(winners, losers, winnerKills, Object.assign(firstKillContext, {
+        killerEco: playerWonRound ? playerEco : enemyEco,
+        victimEco: playerWonRound ? enemyEco : playerEco,
+        bombPlanted: context.bombPlanted
+    }));
+    grantLiveKills(losers, winners, loserKills, Object.assign(firstKillContext, {
+        killerEco: playerWonRound ? enemyEco : playerEco,
+        victimEco: playerWonRound ? playerEco : enemyEco,
+        bombPlanted: context.bombPlanted
+    }));
     grantLiveChipDamage(winners, losers);
     grantLiveChipDamage(losers, winners);
+    finalizeRoundImpact(playerStats, playerWonRound);
+    finalizeRoundImpact(enemyStats, !playerWonRound);
 
     [...playerStats, ...enemyStats].forEach(stat => {
         stat.rounds += 1;
@@ -4273,7 +4417,7 @@ function renderLiveTeamStats(teamName, stats, sideClass, score, scoreUnit = 'р�
                 <span class="live-stat-label">Swing</span>
                 <span class="live-stat-label">ADR</span>
                 <span class="live-stat-label">KAST</span>
-                <span class="live-stat-label">Rating</span>
+                <span class="live-stat-label">Rating 3.0</span>
             </div>
             ${sorted.map((stat, index) => {
                 const adr = stat.rounds ? stat.damage / stat.rounds : 0;
@@ -4322,7 +4466,9 @@ startSingleMapSimulation = function(mapName, onMapEnd) {
     let enemyRoundScore = 0;
     let currentRound = 1;
     let playerLossStreak = 0;
+    let enemyLossStreak = 0;
     let playerRoundMoney = 800;
+    let enemyRoundMoney = 800;
     let inOvertime = false;
     let playerOvertimeScore = 0;
     let enemyOvertimeScore = 0;
@@ -4340,21 +4486,33 @@ startSingleMapSimulation = function(mapName, onMapEnd) {
         let playerPower = getTeamSkill(mapName);
         const enemyPower = enemyTeam ? getOpponentMapPower(enemyTeam, mapName) : state.currentEnemy.skill;
         let economyPenalty = 0;
+        let enemyEconomyPenalty = 0;
         playerPower += getTacticPowerModifier(state.chosenTactic, mapName, currentRound, playerRoundMoney);
         if (currentRound !== 1 && currentRound !== 13 && !inOvertime && playerRoundMoney < 3000) economyPenalty = 14;
+        if (currentRound !== 1 && currentRound !== 13 && !inOvertime && enemyRoundMoney < 3000) enemyEconomyPenalty = 14;
         if (state.chosenTactic === 'aggressive' && playerRoundMoney < 3000) economyPenalty += 3;
 
-        const totalPower = Math.max(1, playerPower - economyPenalty + enemyPower);
-        const winChance = Math.max(0.18, Math.min(0.82, (playerPower - economyPenalty) / totalPower));
+        const playerEffectivePower = playerPower - economyPenalty;
+        const enemyEffectivePower = enemyPower - enemyEconomyPenalty;
+        const totalPower = Math.max(1, playerEffectivePower + enemyEffectivePower);
+        const winChance = Math.max(0.18, Math.min(0.82, playerEffectivePower / totalPower));
         const playerWonRound = Math.random() < winChance;
-        simulateLiveRoundStats(playerLiveStats, enemyLiveStats, playerWonRound);
+        const bombPlanted = Math.random() < (playerWonRound ? 0.46 : 0.36);
+        simulateLiveRoundStats(playerLiveStats, enemyLiveStats, playerWonRound, {
+            roundNumber: currentRound,
+            playerEco: getRoundEconomyProfile(playerRoundMoney, currentRound),
+            enemyEco: getRoundEconomyProfile(enemyRoundMoney, currentRound),
+            bombPlanted
+        });
 
         let logText = '';
         if (playerWonRound) {
             playerRoundScore += 1;
             if (inOvertime) playerOvertimeScore += 1;
             playerLossStreak = 0;
+            enemyLossStreak = Math.min(enemyLossStreak + 1, 5);
             playerRoundMoney = Math.min(playerRoundMoney + 3250, 16000);
+            enemyRoundMoney = Math.min(enemyRoundMoney + 1400 + enemyLossStreak * 500, 16000);
             const hero = [...playerLiveStats].sort((a, b) => b.roundKills - a.roundKills || b.rating - a.rating)[0];
             const phrase = Math.random() < 0.5 ? ctPhrases[Math.floor(Math.random() * ctPhrases.length)] : tPhrases[Math.floor(Math.random() * tPhrases.length)];
             logText = `<span style="color:#c7f000;">[${escapeLiveText(state.userTeamTag)}] Раунд ${currentRound}:</span> <b>${escapeLiveText(hero.name)}</b> ${phrase}`;
@@ -4362,7 +4520,9 @@ startSingleMapSimulation = function(mapName, onMapEnd) {
             enemyRoundScore += 1;
             if (inOvertime) enemyOvertimeScore += 1;
             playerLossStreak = Math.min(playerLossStreak + 1, 5);
+            enemyLossStreak = 0;
             playerRoundMoney = Math.min(playerRoundMoney + 1400 + playerLossStreak * 500, 16000);
+            enemyRoundMoney = Math.min(enemyRoundMoney + 3250, 16000);
             const hero = [...enemyLiveStats].sort((a, b) => b.roundKills - a.roundKills || b.rating - a.rating)[0];
             logText = `<span style="color:#ff5b66;">[${escapeLiveText((enemyTeam?.name || state.currentEnemy.name).substring(0, 8).toUpperCase())}] Раунд ${currentRound}:</span> <b>${escapeLiveText(hero.name)}</b> приносить раунд супернику.`;
         }
@@ -4396,7 +4556,15 @@ startSingleMapSimulation = function(mapName, onMapEnd) {
                 name: stat.name,
                 kills: stat.kills,
                 deaths: stat.deaths,
-                rating: Number(stat.rating.toFixed(2))
+                rating: Number(stat.rating.toFixed(2)),
+                swingImpact: stat.swingImpact || 0,
+                ecoAdjustedKills: stat.ecoAdjustedKills || 0,
+                multiKills: stat.multiKills || 0,
+                clutches: stat.clutches || 0,
+                entryKills: stat.entryKills || 0,
+                damage: stat.damage || 0,
+                kastRounds: stat.kastRounds || 0,
+                rounds: stat.rounds || 0
             })));
 
             const playerWonMap = playerRoundScore > enemyRoundScore;
@@ -4437,7 +4605,13 @@ function serializeLiveStat(stat) {
         kastRounds: stat.kastRounds,
         rounds: stat.rounds,
         rating: stat.rating,
-        swing: stat.swing
+        rating3: stat.rating3 || stat.rating,
+        swing: stat.swing,
+        swingImpact: stat.swingImpact || 0,
+        ecoAdjustedKills: stat.ecoAdjustedKills || 0,
+        multiKills: stat.multiKills || 0,
+        clutches: stat.clutches || 0,
+        entryKills: stat.entryKills || 0
     };
 }
 
@@ -4457,7 +4631,13 @@ function aggregateBo3Stats(maps, statsKey) {
                     kastRounds: 0,
                     rounds: 0,
                     rating: 1,
-                    swing: 0
+                    rating3: 1,
+                    swing: 0,
+                    swingImpact: 0,
+                    ecoAdjustedKills: 0,
+                    multiKills: 0,
+                    clutches: 0,
+                    entryKills: 0
                 });
             }
             const target = aggregate.get(stat.name);
@@ -4466,6 +4646,11 @@ function aggregateBo3Stats(maps, statsKey) {
             target.damage += stat.damage || 0;
             target.kastRounds += stat.kastRounds || 0;
             target.rounds += stat.rounds || 0;
+            target.swingImpact += stat.swingImpact || 0;
+            target.ecoAdjustedKills += stat.ecoAdjustedKills || 0;
+            target.multiKills += stat.multiKills || 0;
+            target.clutches += stat.clutches || 0;
+            target.entryKills += stat.entryKills || 0;
         });
     });
     const result = [...aggregate.values()];
@@ -4555,6 +4740,41 @@ startBo3Series = function() {
     startBo3SeriesBeforeReview();
 };
 
+function applyOpponentLiveSeriesStats(teamName, maps, enemyWonSeries) {
+    const team = getTeamByName(teamName);
+    if (!team || !Array.isArray(team.players) || !Array.isArray(maps)) return;
+    const stats = aggregateBo3Stats(maps, 'enemyStats');
+    let best = null;
+    stats.forEach(row => {
+        const player = team.players.find(item => item.name === row.name);
+        if (!player) return;
+        player.stats = player.stats || {};
+        const rounds = Math.max(1, row.rounds || 1);
+        const kd = row.kills / Math.max(1, row.deaths);
+        const kast = (row.kastRounds || 0) / rounds;
+        const swingPerRound = (row.swingImpact || 0) / rounds;
+        const seriesRating = Math.max(0.55, Math.min(2.2,
+            (row.rating || 1) * 0.78
+            + kd * 0.05
+            + kast * 0.1
+            + swingPerRound * 0.02
+            + (enemyWonSeries ? 0.04 : -0.03)
+        ));
+        player.stats.kills = (player.stats.kills || 0) + (row.kills || 0);
+        player.stats.deaths = (player.stats.deaths || 0) + (row.deaths || 0);
+        player.stats.matches = (player.stats.matches || 0) + 1;
+        player.stats.rating = Number((((player.stats.rating || 1) * Math.max(0, player.stats.matches - 1) + seriesRating) / player.stats.matches).toFixed(2));
+        player.stats.swingImpact = Number(((player.stats.swingImpact || 0) + (row.swingImpact || 0)).toFixed(2));
+        player.stats.ecoAdjustedKills = Number(((player.stats.ecoAdjustedKills || 0) + (row.ecoAdjustedKills || 0)).toFixed(2));
+        player.stats.multiKills = (player.stats.multiKills || 0) + (row.multiKills || 0);
+        player.stats.clutches = (player.stats.clutches || 0) + (row.clutches || 0);
+        player.stats.entryKills = (player.stats.entryKills || 0) + (row.entryKills || 0);
+        const mvpScore = seriesRating * 92 + (row.swingImpact || 0) * 0.72 + (row.multiKills || 0) * 3.2 + (row.clutches || 0) * 6 + (enemyWonSeries ? 8 : -3);
+        if (!best || mvpScore > best.score) best = { player, score: mvpScore };
+    });
+    if (enemyWonSeries && best?.player) best.player.stats.mvps = (best.player.stats.mvps || 0) + 1;
+}
+
 const finishBo3SeriesBeforeReview = finishBo3Series;
 finishBo3Series = function(isPlayerWin) {
     const report = {
@@ -4567,6 +4787,7 @@ finishBo3Series = function(isPlayerWin) {
         selectedMap: 'all'
     };
 
+    applyOpponentLiveSeriesStats(report.enemyTeam, report.maps, !isPlayerWin);
     finishBo3SeriesBeforeReview(isPlayerWin);
     seriesState.completedReport = report;
     document.getElementById('game-interface').style.display = 'none';
@@ -4709,6 +4930,14 @@ window.upgradeBootcamp = function() {
     return false;
 };
 
+function getBalancedMapSkillBonus(rawSkill = 0) {
+    const skill = Number(rawSkill || 0);
+    if (skill < 0) return skill * 0.34;
+    if (skill <= 10) return skill * 0.22;
+    if (skill <= 20) return 2.2 + (skill - 10) * 0.14;
+    return 3.6 + (skill - 20) * 0.07;
+}
+
 function getConnectedRosterPower(players, chemistry, mapRow, isWeakMap = false, fatigue = 0) {
     const roster = players || [];
     const effectiveSkill = typeof window.getEffectiveRosterSkill === 'function'
@@ -4718,16 +4947,17 @@ function getConnectedRosterPower(players, chemistry, mapRow, isWeakMap = false, 
     const averageRating = roster.reduce((sum, player) => sum + Number(player.stats?.rating || 1), 0) / Math.max(1, roster.length);
     const averageLevel = roster.reduce((sum, player) => sum + Number(player.level || Math.max(1, Math.round((player.skill - 55) / 3))), 0) / Math.max(1, roster.length);
     const mapSkill = isWeakMap ? -10 : Number(mapRow?.skill || 0);
+    const mapBonus = getBalancedMapSkillBonus(mapSkill);
     const mapWinrate = Number(mapRow?.played || 0) ? Number(mapRow.wins || 0) / Math.max(1, Number(mapRow.played)) * 100 : 50;
     const mapExperience = Math.min(1, Number(mapRow?.played || 0) / 10);
     return effectiveSkill
-        + averageForm * 0.7
-        + (averageRating - 1) * 16
-        + (averageLevel - 8) * 0.28
-        + (Number(chemistry || 70) - 70) * 0.12
-        + mapSkill * 0.28
-        + (mapWinrate - 50) * 0.04 * mapExperience
-        - Math.max(0, (Number(fatigue || 0) - 55) * 0.12);
+        + averageForm * 0.52
+        + (averageRating - 1) * 11
+        + (averageLevel - 8) * 0.2
+        + (Number(chemistry || 70) - 70) * 0.1
+        + mapBonus
+        + (mapWinrate - 50) * 0.018 * mapExperience
+        - Math.max(0, (Number(fatigue || 0) - 48) * 0.16);
 }
 
 window.getUserCompetitivePower = function(mapName = '') {
@@ -4748,7 +4978,7 @@ window.getCompetitiveTeamPower = function(team, mapName = '') {
     return getConnectedRosterPower(team.players, team.chemistry, team.mapStats?.[mapName], mapName === team.weakMap, 0);
 };
 
-window.calculatePowerWinChance = function(powerA, powerB, spread = 22, minimum = 0.12, maximum = 0.88) {
+window.calculatePowerWinChance = function(powerA, powerB, spread = 24, minimum = 0.16, maximum = 0.84) {
     const chance = 1 / (1 + Math.pow(10, (Number(powerB) - Number(powerA)) / Math.max(1, spread)));
     return Math.max(minimum, Math.min(maximum, chance));
 };
@@ -4781,7 +5011,10 @@ updateTeamMapDevelopment = function(team, mapName, didWin) {
     const row = team.mapStats[mapName] || { played: 0, wins: 0, skill: 0 };
     row.played += 1;
     if (didWin) row.wins += 1;
-    row.skill = clampMapSkill(row.skill + 1 + (didWin ? 2 : -2));
+    const currentSkill = Number(row.skill || 0);
+    const growthChance = currentSkill < 12 ? 1 : currentSkill < 22 ? 0.72 : 0.42;
+    const baseGrowth = Math.random() < growthChance ? 1 : 0;
+    row.skill = clampMapSkill(currentSkill + baseGrowth + (didWin ? 1 : -2));
     team.mapStats[mapName] = row;
     if (didWin && Math.random() < 0.24) team.mapFocus = mapName;
 };
@@ -4795,7 +5028,10 @@ updatePlayerMapDevelopment = function(mapName, didWin) {
     const row = state.mapMastery[mapName] || { played: 0, wins: 0, skill: 0 };
     row.played += 1;
     if (didWin) row.wins += 1;
-    row.skill = clampMapSkill(row.skill + 1 + (didWin ? 2 : -2));
+    const currentSkill = Number(row.skill || 0);
+    const growthChance = currentSkill < 12 ? 1 : currentSkill < 22 ? 0.72 : 0.42;
+    const baseGrowth = Math.random() < growthChance ? 1 : 0;
+    row.skill = clampMapSkill(currentSkill + baseGrowth + (didWin ? 1 : -2));
     state.mapMastery[mapName] = row;
     logSystem(`🗺️ ${mapName}: ${didWin ? 'перемога' : 'поразка'}, скіл карти ${row.skill}/30, WR ${getMapWinrate(row)}%.`);
 };

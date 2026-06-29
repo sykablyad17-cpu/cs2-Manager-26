@@ -575,6 +575,227 @@
     });
 })();
 
+// === CODEX BALANCE INTELLIGENCE LAYER ===
+(function () {
+    if (window.__codexBalanceIntelligenceReady) return;
+    window.__codexBalanceIntelligenceReady = true;
+
+    function safeTeamName(name) {
+        return String(name || '').replace(/ \(Tier [123]\)$/,'');
+    }
+
+    function getTeamRank(name) {
+        if (!Array.isArray(teamsRating)) return 0;
+        return [...teamsRating].sort((a, b) => (b.points || 0) - (a.points || 0)).findIndex(team => team.name === name) + 1;
+    }
+
+    function getTeamPowerSafe(team, mapName = '') {
+        if (!team) return 70;
+        if (typeof window.getCompetitiveTeamPower === 'function') return Number(window.getCompetitiveTeamPower(team, mapName)) || 70;
+        return (team.players || []).reduce((sum, player) => sum + Math.min(100, player.skill || 70) + (player.form || 0), 0) / Math.max(1, (team.players || []).length);
+    }
+
+    function getUserPowerSafe(mapName = '') {
+        if (typeof window.getUserCompetitivePower === 'function') return Number(window.getUserCompetitivePower(mapName)) || 70;
+        return (state.players || []).reduce((sum, player) => sum + Math.min(100, player.skill || 70) + (player.form || 0), 0) / Math.max(1, (state.players || []).length);
+    }
+
+    function getSeriesMapName() {
+        const maps = seriesState?.mapDetailedStats || [];
+        return maps[maps.length - 1]?.map || seriesState?.pickedMaps?.[0] || '';
+    }
+
+    function getOpponentTeam() {
+        const name = safeTeamName(state.currentEnemy?.name);
+        return teamsRating.find(team => team.name === name);
+    }
+
+    function calculateSmartRankingDelta(isPlayerWin, ownBefore, enemyBefore, ownRank, enemyRank, powerGap) {
+        const upsetBonus = isPlayerWin ? Math.max(-8, Math.min(16, (ownRank - enemyRank) * 1.7)) : 0;
+        const favoriteTax = isPlayerWin ? Math.max(0, Math.min(12, powerGap * 0.55)) : 0;
+        const lossPunish = !isPlayerWin ? Math.max(7, Math.min(22, (enemyRank - ownRank) * -1.4 + Math.max(0, powerGap) * 0.55 + 10)) : 0;
+        const base = isPlayerWin ? 14 : -10;
+        const pointGapFactor = Math.max(-8, Math.min(8, ((enemyBefore || 0) - (ownBefore || 0)) / 35));
+        const raw = isPlayerWin
+            ? base + upsetBonus + pointGapFactor - favoriteTax
+            : base - lossPunish + pointGapFactor * 0.35;
+        return Math.round(Math.max(isPlayerWin ? 4 : -32, Math.min(isPlayerWin ? 34 : -4, raw)));
+    }
+
+    function getFarmXpModifier(powerGap, isPlayerWin) {
+        if (!isPlayerWin) return 1;
+        if (powerGap >= 18) return 0.25;
+        if (powerGap >= 12) return 0.45;
+        if (powerGap >= 7) return 0.7;
+        return 1;
+    }
+
+    function getPlayerSeriesRows() {
+        return Object.values(seriesState?.seriesPlayerStats || {});
+    }
+
+    function tunePlayerFormAndXp(isPlayerWin, powerGap) {
+        const farmModifier = getFarmXpModifier(powerGap, isPlayerWin);
+        const rows = getPlayerSeriesRows();
+        state.players.forEach(player => {
+            const row = rows.find(item => item.name === player.name);
+            const rating = row ? Number(row.ratingSum || 1) / Math.max(1, row.maps || 1) : Number(player.stats?.rating || 1);
+            const swing = row ? Number(row.swingImpact || 0) / Math.max(1, row.rounds || 20) : 0;
+            const formDelta = rating >= 1.18 ? 1 : rating < 0.82 ? -1 : isPlayerWin ? 0 : -1;
+            player.form = Math.max(-5, Math.min(5, (player.form || 0) + formDelta));
+            if (typeof window.addPlayerLevelProgress === 'function') {
+                const baseXp = (rating - 1) * 10 + swing * 0.55 + (isPlayerWin ? 2 : -3);
+                const adjustedXp = Math.round(Math.max(-7, Math.min(9, baseXp * farmModifier)));
+                window.addPlayerLevelProgress(player, adjustedXp);
+            }
+        });
+        return farmModifier;
+    }
+
+    function updateTeamFormMemory(team, didWin) {
+        if (!team) return;
+        team.recentResults = Array.isArray(team.recentResults) ? team.recentResults : [];
+        team.recentResults.push(didWin ? 'W' : 'L');
+        team.recentResults = team.recentResults.slice(-5);
+        team.matchesPlayed = (team.matchesPlayed || 0) + 1;
+        if (didWin) team.matchWins = (team.matchWins || 0) + 1;
+    }
+
+    function inferEnemyStyle(team) {
+        if (!team?.players?.length) return 'balanced';
+        const awp = team.players.filter(player => player.role === 'AWP').length;
+        const entryAvg = team.players.filter(player => player.role === 'Entry').reduce((sum, player) => sum + (player.skill || 70), 0);
+        const igl = team.players.find(player => player.role === 'IGL');
+        if (awp >= 2 || (team.mapFocus && /Nuke|Overpass|Mirage/.test(team.mapFocus))) return 'awp';
+        if (entryAvg > 165) return 'aggressive';
+        if (igl && (igl.skill || 70) >= 82) return 'control';
+        return 'balanced';
+    }
+
+    function getTacticCounterBonus(ownTactic, enemyStyle) {
+        const table = {
+            defensive: { aggressive: 2.4, entry: 1.8, control: -0.8 },
+            control: { defensive: 1.1, balanced: 0.8, aggressive: -0.9 },
+            aggressive: { eco: 2.2, awp: -1.2, defensive: -1.3 },
+            awp: { control: 1.4, aggressive: -0.7 },
+            entry: { defensive: -0.9, awp: 1.1 },
+            balanced: { aggressive: 0.4, control: 0.2, defensive: 0.2 }
+        };
+        return Number(table[ownTactic]?.[enemyStyle] || 0);
+    }
+
+    if (typeof getTacticPowerModifier === 'function' && !getTacticPowerModifier.__codexCounterLayer) {
+        const oldTacticPower = getTacticPowerModifier;
+        getTacticPowerModifier = function (tactic, mapName, roundNumber, money) {
+            const base = Number(oldTacticPower.apply(this, arguments)) || 0;
+            const enemyStyle = inferEnemyStyle(getOpponentTeam());
+            const counter = getTacticCounterBonus(tactic, enemyStyle);
+            state.lastTacticCounter = { tactic, enemyStyle, counter };
+            return base + counter;
+        };
+        getTacticPowerModifier.__codexCounterLayer = true;
+        window.getTacticPowerModifier = getTacticPowerModifier;
+    }
+
+    function buildMatchFactors(isPlayerWin, ownBefore, enemyBefore, smartDelta, farmModifier, powerGap) {
+        const mapName = getSeriesMapName();
+        const ownMap = state.mapMastery?.[mapName];
+        const enemy = getOpponentTeam();
+        const enemyMap = enemy?.mapStats?.[mapName];
+        const best = getPlayerSeriesRows()
+            .map(row => ({ ...row, avg: Number(row.ratingSum || 1) / Math.max(1, row.maps || 1), swing: Number(row.swingImpact || 0) / Math.max(1, row.rounds || 20) }))
+            .sort((a, b) => b.swing - a.swing || b.avg - a.avg)[0];
+        const factors = [];
+        factors.push(`${isPlayerWin ? 'Перемога' : 'Поразка'}: сила складу ${powerGap >= 0 ? '+' : ''}${powerGap.toFixed(1)} до суперника`);
+        if (mapName) factors.push(`Карта ${mapName}: ваша ${ownMap?.skill ?? 0}/30, суперник ${enemyMap?.skill ?? 0}/30`);
+        if (best) factors.push(`Ключовий вплив: ${best.name} Rating ${best.avg.toFixed(2)}, Swing ${best.swing >= 0 ? '+' : ''}${best.swing.toFixed(2)}%`);
+        if (state.lastTacticCounter) {
+            const tacticName = typeof getTacticLabel === 'function' ? getTacticLabel(state.lastTacticCounter.tactic) : state.lastTacticCounter.tactic;
+            factors.push(`Тактика: ${tacticName} vs ${state.lastTacticCounter.enemyStyle}, модифікатор ${state.lastTacticCounter.counter >= 0 ? '+' : ''}${state.lastTacticCounter.counter.toFixed(1)}`);
+        }
+        if (farmModifier < 1) factors.push(`Анти-фарм: суперник слабший, розвиток зменшено до ${Math.round(farmModifier * 100)}%`);
+        factors.push(`HLTV pts: було ${Math.round(ownBefore || 0)}, корекція ${smartDelta >= 0 ? '+' : ''}${smartDelta}`);
+        state.lastMatchBalanceFactors = factors;
+    }
+
+    if (typeof finishBo3Series === 'function' && !finishBo3Series.__codexBalanceIntelligence) {
+        const oldFinish = finishBo3Series;
+        finishBo3Series = function (isPlayerWin) {
+            const ownTeam = teamsRating.find(team => team.isPlayer);
+            const enemyTeam = getOpponentTeam();
+            const mapName = getSeriesMapName();
+            const ownBefore = ownTeam?.points || 0;
+            const enemyBefore = enemyTeam?.points || 0;
+            const ownRank = getTeamRank(ownTeam?.name);
+            const enemyRank = getTeamRank(enemyTeam?.name);
+            const powerGap = getUserPowerSafe(mapName) - getTeamPowerSafe(enemyTeam, mapName);
+            const result = oldFinish.apply(this, arguments);
+
+            const refreshedOwn = teamsRating.find(team => team.isPlayer);
+            const refreshedEnemy = enemyTeam ? teamsRating.find(team => team.name === enemyTeam.name) : null;
+            const smartDelta = calculateSmartRankingDelta(isPlayerWin, ownBefore, enemyBefore, ownRank || 50, enemyRank || 50, powerGap);
+            if (refreshedOwn) refreshedOwn.points = Math.max(0, Math.round(ownBefore + smartDelta));
+            if (refreshedEnemy) {
+                const enemyDelta = isPlayerWin ? -Math.max(3, Math.round(smartDelta * 0.35)) : Math.max(5, Math.round(Math.abs(smartDelta) * 0.45));
+                refreshedEnemy.points = Math.max(0, Math.round(enemyBefore + enemyDelta));
+            }
+            const farmModifier = tunePlayerFormAndXp(isPlayerWin, powerGap);
+            updateTeamFormMemory(refreshedOwn, isPlayerWin);
+            updateTeamFormMemory(refreshedEnemy, !isPlayerWin);
+            buildMatchFactors(isPlayerWin, ownBefore, enemyBefore, smartDelta, farmModifier, powerGap);
+            const footer = document.querySelector('#post-match-report .post-match-footer');
+            if (footer && !document.querySelector('#post-match-report .post-match-factors')) {
+                footer.insertAdjacentHTML('beforebegin', renderFactorItems());
+            }
+            if (typeof syncPlayerTeamInRating === 'function') syncPlayerTeamInRating();
+            if (typeof autoSave === 'function') autoSave('balance-intelligence-match');
+            return result;
+        };
+        finishBo3Series.__codexBalanceIntelligence = true;
+        window.finishBo3Series = finishBo3Series;
+    }
+
+    function renderFactorItems() {
+        const factors = state.lastMatchBalanceFactors || [];
+        if (!factors.length) return '';
+        return `
+            <div class="post-match-factors">
+                <h3>Вирішальні фактори</h3>
+                ${factors.map(item => `<div class="post-match-factor"><span></span><b>${escapeLiveText(item)}</b></div>`).join('')}
+            </div>
+        `;
+    }
+
+    if (typeof renderPostMatchReport === 'function' && !renderPostMatchReport.__codexBalanceIntelligence) {
+        const oldReport = renderPostMatchReport;
+        renderPostMatchReport = function (report, selection = 'all') {
+            const result = oldReport.apply(this, arguments);
+            const footer = document.querySelector('#post-match-report .post-match-footer');
+            if (footer && !document.querySelector('#post-match-report .post-match-factors')) {
+                footer.insertAdjacentHTML('beforebegin', renderFactorItems());
+            }
+            return result;
+        };
+        renderPostMatchReport.__codexBalanceIntelligence = true;
+        window.renderPostMatchReport = renderPostMatchReport;
+    }
+
+    window.runBalanceQuickCheck = function () {
+        const own = teamsRating.find(team => team.isPlayer);
+        const enemy = getOpponentTeam() || teamsRating.find(team => !team.isPlayer);
+        const powerGap = getUserPowerSafe(getSeriesMapName()) - getTeamPowerSafe(enemy, getSeriesMapName());
+        return {
+            own: own?.name,
+            enemy: enemy?.name,
+            ownPower: Number(getUserPowerSafe(getSeriesMapName()).toFixed(2)),
+            enemyPower: Number(getTeamPowerSafe(enemy, getSeriesMapName()).toFixed(2)),
+            powerGap: Number(powerGap.toFixed(2)),
+            winDelta: calculateSmartRankingDelta(true, own?.points || 0, enemy?.points || 0, getTeamRank(own?.name), getTeamRank(enemy?.name), powerGap),
+            lossDelta: calculateSmartRankingDelta(false, own?.points || 0, enemy?.points || 0, getTeamRank(own?.name), getTeamRank(enemy?.name), powerGap)
+        };
+    };
+})();
+
 // === CODEX FINAL UX POLISH: no new gameplay, only clarity and consistency ===
 (function () {
     function esc(value) {
